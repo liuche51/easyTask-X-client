@@ -84,6 +84,7 @@ public class AnnularQueue {
         if (isRunning)
             return;
         NettyServer.getInstance().run();//启动组件的Netty服务端口
+        ClusterService.initCurrentNode();
         isRunning = true;
         int lastSecond = 0;
         while (true) {

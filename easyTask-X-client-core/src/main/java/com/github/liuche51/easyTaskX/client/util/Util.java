@@ -1,8 +1,10 @@
 package com.github.liuche51.easyTaskX.client.util;
 
-import com.github.liuche51.easyTaskX.cluster.ClusterService;
-import com.github.liuche51.easyTaskX.cluster.Node;
-import com.github.liuche51.easyTaskX.dto.zk.ZKHost;
+
+import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
+import com.github.liuche51.easyTaskX.client.core.ClusterService;
+import com.github.liuche51.easyTaskX.client.core.Node;
+import com.github.liuche51.easyTaskX.client.dto.zk.ZKHost;
 
 import java.io.File;
 import java.io.IOException;
@@ -133,9 +135,9 @@ public class Util {
     public static String getSource(String oldSource) throws UnknownHostException {
         String source=StringConstant.EMPTY;
         if(oldSource==null||oldSource== StringConstant.EMPTY)
-            source= ClusterService.getConfig().getAddress();
+            source= AnnularQueue.getInstance().getConfig().getAddress();
         else
-            source=ClusterService.getConfig().getAddress()+"<-"+oldSource;
+            source=AnnularQueue.getInstance().getConfig().getAddress()+"<-"+oldSource;
         return source;
     }
 }
