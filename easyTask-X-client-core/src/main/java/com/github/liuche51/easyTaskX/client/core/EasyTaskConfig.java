@@ -1,7 +1,7 @@
 package com.github.liuche51.easyTaskX.client.core;
 
-import com.github.liuche51.easyTask.util.StringUtils;
-import com.github.liuche51.easyTask.util.Util;
+import com.github.liuche51.easyTaskX.client.util.StringUtils;
+import com.github.liuche51.easyTaskX.client.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,18 +19,6 @@ public class EasyTaskConfig {
      * zk地址。必填 如:127.0.0.1:2181,192.168.1.128:2181
      */
     private String zkAddress;
-    /**
-     * 任务备份数量，默认2。最大2，超过部分无效
-     */
-    private int backupCount = 2;
-    /**
-     * 自定义任务本地存储路径。必填
-     */
-    private String taskStorePath;
-    /**
-     * sqlite连接池大小设置。默认3
-     */
-    private int sQLlitePoolSize = 3;
     /**
      * Netty客户端连接池大小设置。默认3
      */
@@ -60,10 +48,6 @@ public class EasyTaskConfig {
      */
     private int tryCount = 2;
     /**
-     * 清理任务备份表中失效的leader备份。默认1小时一次。单位毫秒
-     */
-    private int clearScheduleBakTime = 36500000;
-    /**
      * 集群公用程池
      */
     private ExecutorService clusterPool = null;
@@ -71,11 +55,11 @@ public class EasyTaskConfig {
     /**
      * 环形队列任务调度线程池
      */
-    private ExecutorService dispatchs =  null;
+    private ExecutorService dispatchs = null;
     /**
      * 环形队列工作任务线程池
      */
-    private ExecutorService workers =  null;
+    private ExecutorService workers = null;
 
     public String getZkAddress() {
         return zkAddress;
@@ -83,46 +67,6 @@ public class EasyTaskConfig {
 
     public void setZkAddress(String zkAddress) {
         this.zkAddress = zkAddress;
-    }
-
-    public int getBackupCount() {
-        return backupCount;
-    }
-
-    public void setBackupCount(int backupCount) throws Exception {
-        if (backupCount != 2)
-            throw new Exception("backupCount != 2");
-        else this.backupCount = backupCount;
-    }
-
-    public String getTaskStorePath() {
-        return taskStorePath;
-    }
-
-    /**
-     * set Task Store Path.example  C:/db
-     *
-     * @param path
-     * @throws Exception
-     */
-    public void setTaskStorePath(String path) throws Exception {
-        this.taskStorePath = path;
-    }
-
-    public int getsQLlitePoolSize() {
-        return sQLlitePoolSize;
-    }
-
-    /**
-     * set SQLlitePool Size，default qty 3
-     *
-     * @param sQLlitePoolSize
-     * @throws Exception
-     */
-    public void setSQLlitePoolSize(int sQLlitePoolSize) throws Exception {
-        if (sQLlitePoolSize < 1)
-            throw new Exception("sQLlitePoolSize must >1");
-        this.sQLlitePoolSize = sQLlitePoolSize;
     }
 
     public int getNettyPoolSize() {
@@ -164,9 +108,11 @@ public class EasyTaskConfig {
     public void setTimeOut(int timeOut) {
         this.timeOut = timeOut;
     }
+
     public int getLoseTimeOut() {
         return loseTimeOut;
     }
+
     public void setLoseTimeOut(int loseTimeOut) {
         this.loseTimeOut = loseTimeOut;
     }
@@ -195,17 +141,7 @@ public class EasyTaskConfig {
         this.tryCount = tryCount;
     }
 
-    public int getClearScheduleBakTime() {
-        return clearScheduleBakTime;
-    }
-
-    public void setClearScheduleBakTime(int clearScheduleBakTime) {
-        this.clearScheduleBakTime = clearScheduleBakTime;
-    }
-
     public ExecutorService getClusterPool() {
-        if (this.clusterPool == null)
-            this.clusterPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
         return clusterPool;
     }
 
@@ -237,17 +173,18 @@ public class EasyTaskConfig {
 
     /**
      * 必填项验证
+     *
      * @param config
      * @throws Exception
      */
     public static void validateNecessary(EasyTaskConfig config) throws Exception {
-        if(StringUtils.isNullOrEmpty(config.zkAddress))
+        if (StringUtils.isNullOrEmpty(config.zkAddress))
             throw new Exception("zkAddress is necessary!");
-        if(StringUtils.isNullOrEmpty(config.taskStorePath))
-            throw new Exception("taskStorePath is necessary!");
-        if(config.dispatchs==null)
-            config.dispatchs= Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        if(config.workers==null)
-            config.workers= Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+        if (config.dispatchs == null)
+            config.dispatchs = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        if (config.workers == null)
+            config.workers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+        if (config.clusterPool == null)
+            config.clusterPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     }
 }

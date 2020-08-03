@@ -1,6 +1,6 @@
 package com.github.liuche51.easyTaskX.client.netty.client;
 
-import com.github.liuche51.easyTaskX.cluster.ClusterService;
+import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class NettyConnectionFactory {
     private static final Logger log = LoggerFactory.getLogger(NettyConnectionFactory.class);
-    private Map<String, ConcurrentLinkedQueue<NettyClient>> pools = new HashMap<>(ClusterService.getConfig().getBackupCount());
+    private Map<String, ConcurrentLinkedQueue<NettyClient>> pools = new HashMap<>(2);
     private ReentrantLock lock = new ReentrantLock();
     private static NettyConnectionFactory singleton = null;
 
@@ -66,7 +66,7 @@ public class NettyConnectionFactory {
         String key = conn.getHost() + ":" + conn.getPort();
         ConcurrentLinkedQueue<NettyClient> pool = pools.get(key);
         //连接没有被关闭的才可以放入池中
-        if (conn.getClientChannel()!=null&&conn.getClientChannel().isActive()&&pool.size() < ClusterService.getConfig().getNettyPoolSize()) {
+        if (conn.getClientChannel()!=null&&conn.getClientChannel().isActive()&&pool.size() < AnnularQueue.getInstance().getConfig().getNettyPoolSize()) {
             pool.add(conn);
         } else {
             conn.close();

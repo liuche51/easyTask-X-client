@@ -2,7 +2,8 @@ package com.github.liuche51.easyTaskX.client.util;
 
 
 
-import com.github.liuche51.easyTaskX.cluster.ClusterService;
+
+import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -26,7 +27,7 @@ public class DateUtils {
      * @return
      */
     public static boolean isGreaterThanDeadTime(String dateTime){
-        if(ZonedDateTime.now().minusSeconds(ClusterService.getConfig().getDeadTimeOut())
+        if(ZonedDateTime.now().minusSeconds(AnnularQueue.getInstance().getConfig().getDeadTimeOut())
                 .compareTo(DateUtils.parse(dateTime)) > 0)
             return true;
         else return false;
@@ -38,7 +39,7 @@ public class DateUtils {
      * @return
      */
     public static boolean isGreaterThanLoseTime(String dateTime){
-        if(ZonedDateTime.now().minusSeconds(ClusterService.getConfig().getLoseTimeOut())
+        if(ZonedDateTime.now().minusSeconds(AnnularQueue.getInstance().getConfig().getLoseTimeOut())
                 .compareTo(DateUtils.parse(dateTime)) > 0)
             return true;
         else return false;

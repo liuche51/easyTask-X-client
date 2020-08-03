@@ -1,6 +1,6 @@
 package com.github.liuche51.easyTaskX.client.netty.server;
 
-import com.github.liuche51.easyTaskX.dto.proto.Dto;
+import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.protobuf.ProtobufDecoder;

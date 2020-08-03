@@ -1,10 +1,10 @@
 package com.github.liuche51.easyTaskX.client.netty.server;
 
-import com.github.liuche51.easyTaskX.cluster.ClusterService;
-import com.github.liuche51.easyTaskX.dto.proto.Dto;
-import com.github.liuche51.easyTaskX.dto.proto.ResultDto;
-import com.github.liuche51.easyTaskX.netty.server.handler.BaseHandler;
-import com.github.liuche51.easyTaskX.util.StringConstant;
+import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
+import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
+import com.github.liuche51.easyTaskX.client.dto.proto.ResultDto;
+import com.github.liuche51.easyTaskX.client.netty.server.handler.BaseHandler;
+import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
         result.setResult(StringConstant.TRUE);
         builder.setInterfaceName(StringConstant.TRUE);
         try {
-            builder.setSource(ClusterService.getConfig().getAddress());
+            builder.setSource(AnnularQueue.getInstance().getConfig().getAddress());
             Dto.Frame frame = (Dto.Frame) msg;
             builder.setIdentity(frame.getIdentity());
             BaseHandler handler=BaseHandler.INSTANCES.get(frame.getInterfaceName());

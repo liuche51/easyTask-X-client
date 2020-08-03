@@ -1,6 +1,7 @@
 package com.github.liuche51.easyTaskX.client.netty.client;
 
-import com.github.liuche51.easyTaskX.dto.proto.Dto;
+
+import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;

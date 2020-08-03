@@ -1,7 +1,7 @@
 package com.github.liuche51.easyTaskX.client.dto;
 
-import com.github.liuche51.easyTaskX.cluster.ClusterService;
-import com.github.liuche51.easyTaskX.dto.proto.ScheduleDto;
+import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
+import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 
 import java.net.UnknownHostException;
 
@@ -112,18 +112,6 @@ public class Schedule {
         this.source = source;
     }
 
-    public static Schedule valueOf(ScheduleBak bak){
-        Schedule schedule=new Schedule();
-        schedule.id=bak.getId();
-        schedule.classPath=bak.getClassPath();
-        schedule.executeTime=bak.getExecuteTime();
-        schedule.taskType=bak.getTaskType();
-        schedule.period=bak.getPeriod();
-        schedule.unit=bak.getUnit();
-        schedule.param=bak.getParam();
-        schedule.source=bak.getSource();
-        return schedule;
-    }
     public static Schedule valueOf(ScheduleDto.Schedule dto){
         Schedule schedule=new Schedule();
         schedule.id=dto.getId();
@@ -146,7 +134,7 @@ public class Schedule {
         ScheduleDto.Schedule.Builder builder=ScheduleDto.Schedule.newBuilder();
         builder.setId(this.id).setClassPath(this.classPath).setExecuteTime(this.executeTime)
                 .setTaskType(this.taskType).setPeriod(this.period).setUnit(this.unit)
-                .setParam(this.param).setSource(ClusterService.getConfig().getAddress())
+                .setParam(this.param).setSource(AnnularQueue.getInstance().getConfig().getAddress())
                 .setTransactionId(this.transactionId);
         return builder.build();
     }
