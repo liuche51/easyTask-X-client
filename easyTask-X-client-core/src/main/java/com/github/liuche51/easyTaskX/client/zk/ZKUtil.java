@@ -1,10 +1,12 @@
 package com.github.liuche51.easyTaskX.client.zk;
+
 import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
+import com.github.liuche51.easyTaskX.client.core.ClusterService;
+import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,12 +29,12 @@ public class ZKUtil {
                 .connectString(AnnularQueue.getInstance().getConfig().getZkAddress()).connectionTimeoutMs(CONNECTION_TIMEOUT)
                 .sessionTimeoutMs(SESSION_TIMEOUT)
                 .retryPolicy(retryPolicy)
-                .namespace("easyTask-X/Client")//命名空间
+                .namespace("easyTask-X")//命名空间
                 .build();
         //3 开启连接
         client.start();
-        System.out.println(ZooKeeper.States.CONNECTED);
-        System.out.println(client.getState());
+        //4 创建注册二级节点目录
+        ZKService.createZKNode(StringConstant.CLIENT);
         return client;
     }
 
