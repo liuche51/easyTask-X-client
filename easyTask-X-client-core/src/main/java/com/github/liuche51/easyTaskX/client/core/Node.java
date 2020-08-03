@@ -26,7 +26,7 @@ public class Node implements Serializable {
     /**
      * 当前节点的所有serverNodes
      */
-    private List<Node> serverNodes = new LinkedList<>();
+    private List<Node> brokers = new LinkedList<>();
 
     public Node(String host, int port) {
         this.host = host;
@@ -57,12 +57,12 @@ public class Node implements Serializable {
         this.dataStatus = dataStatus;
     }
 
-    public List<Node> getServerNodes() {
-        return serverNodes;
+    public List<Node> getBrokers() {
+        return brokers;
     }
 
-    public void setServerNodes(List<Node> serverNodes) {
-        this.serverNodes = serverNodes;
+    public void setBrokers(List<Node> brokers) {
+        this.brokers = brokers;
     }
 
     public String getAddress() {

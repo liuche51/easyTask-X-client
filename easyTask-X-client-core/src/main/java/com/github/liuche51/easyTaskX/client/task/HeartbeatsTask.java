@@ -1,8 +1,7 @@
 package com.github.liuche51.easyTaskX.client.task;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
-import com.github.liuche51.easyTaskX.client.core.ClusterService;
+import com.github.liuche51.easyTaskX.client.cluster.ClusterService;
 import com.github.liuche51.easyTaskX.client.dto.zk.ZKNode;
 import com.github.liuche51.easyTaskX.client.util.DateUtils;
 import com.github.liuche51.easyTaskX.client.util.Util;

@@ -1,5 +1,6 @@
 package com.github.liuche51.easyTaskX.client.core;
 
+import com.github.liuche51.easyTaskX.client.cluster.ClusterService;
 import com.github.liuche51.easyTaskX.client.dto.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

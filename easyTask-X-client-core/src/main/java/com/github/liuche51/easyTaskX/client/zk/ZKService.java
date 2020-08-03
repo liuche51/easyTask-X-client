@@ -55,12 +55,21 @@ public class ZKService {
     }
 
     /**
-     * 获取命名空间下的的子节点信息
+     * 获取命名空间下Client子目录下的的节点信息
+     *
+     * @return
+     */
+    public static List<String> getChildrenByClientNode() {
+        String path = StringConstant.CHAR_SPRIT+ StringConstant.CLIENT+StringConstant.CHAR_SPRIT;
+        return getChildrenByPath(path);
+    }
+    /**
+     * 获取命名空间下SERVER子目录下的的节点信息
      *
      * @return
      */
     public static List<String> getChildrenByServerNode() {
-        String path = StringConstant.CHAR_SPRIT+ StringConstant.CLIENT+StringConstant.CHAR_SPRIT;
+        String path = StringConstant.CHAR_SPRIT+ StringConstant.SERVER+StringConstant.CHAR_SPRIT;
         return getChildrenByPath(path);
     }
 

@@ -1,7 +1,6 @@
 package com.github.liuche51.easyTaskX.client.zk;
 
 import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
-import com.github.liuche51.easyTaskX.client.core.ClusterService;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;

@@ -2,7 +2,6 @@ package com.github.liuche51.easyTaskX.client.util;
 
 
 import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
-import com.github.liuche51.easyTaskX.client.core.ClusterService;
 import com.github.liuche51.easyTaskX.client.core.Node;
 import com.github.liuche51.easyTaskX.client.dto.zk.ZKHost;
 
