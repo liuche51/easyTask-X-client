@@ -13,19 +13,20 @@ import org.slf4j.LoggerFactory;
 
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * leader选举follow。
+ * 客户单选举Broker
  * 使用多线程互斥机制
  */
 public class VoteBroker {
     private static final Logger log = LoggerFactory.getLogger(VoteBroker.class);
-    private static volatile boolean selecting = false;//选举状态。多线程控制
+    private static volatile boolean voting = false;//选举状态。多线程控制
     private static ReentrantLock lock = new ReentrantLock();//选举互斥锁
 
-    public static boolean isSelecting() {
-        return selecting;
+    public static boolean isVoting() {
+        return voting;
     }
 
     /**
@@ -41,7 +42,9 @@ public class VoteBroker {
             log.info("broker==null,so start to initSelectFollows");
             initSelectBroker();//数量不够递归重新选VoteFollows.selectFollows中
         } else {
-            ClusterService.CURRENTNODE.setBrokers(Arrays.asList(broker));
+            ConcurrentHashMap<String,Node> brokers=new ConcurrentHashMap<>(1);
+            brokers.put(broker.getAddress(),broker);
+            ClusterService.CURRENTNODE.setBrokers(brokers);
             //通知follows当前Leader位置
             ClusterService.notifyBrokerPosition(broker, AnnularQueue.getInstance().getConfig().getTryCount());
         }
@@ -54,9 +57,9 @@ public class VoteBroker {
      * @param items 是否在迭代器中访问，是则使用迭代器移除元素
      * @return
      */
-    public static Node selectNewFollow(Node oldBroker, Iterator<Node> items) throws Exception {
-        if (selecting) throw new VotingException("cluster is voting new Broker,please retry later.");
-        selecting = true;
+    public static Node voteNewBroker(Node oldBroker, Iterator<Node> items) throws Exception {
+        if (voting) throw new VotingException("cluster is voting new Broker,please retry later.");
+        voting = true;
         Node newBroker = null;
         try {
             lock.lock();
@@ -71,13 +74,13 @@ public class VoteBroker {
             List<String> availableFollows = getAvailableBrokers(Arrays.asList(oldBroker.getAddress()));
             newBroker = selectBroker(availableFollows);
             if (newBroker==null)
-                selectNewFollow(oldBroker, items);//没选出来递归重新选
+                voteNewBroker(oldBroker, items);//没选出来递归重新选
             else {
-                ClusterService.CURRENTNODE.getBrokers().add(newBroker);
+                ClusterService.CURRENTNODE.getBrokers().put(newBroker.getAddress(),newBroker);
             }
 
         } finally {
-            selecting = false;//复原选举装填
+            voting = false;//复原选举装填
             lock.unlock();
         }
         if (newBroker == null)

@@ -9,4 +9,8 @@ public class NettyInterfaceEnum {
      * 同步位置信息给Broker接口
      */
     public static final String SYNC_CLIENT_POSITION="SyncClientPosition";
+    /**
+     * 获取与目标主机的时钟差距接口
+     */
+    public static final String SYNC_CLOCK_DIFFER="SyncClockDiffer";
 }

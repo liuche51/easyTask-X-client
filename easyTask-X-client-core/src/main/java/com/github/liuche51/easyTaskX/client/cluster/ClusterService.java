@@ -7,6 +7,7 @@ import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.zk.ZKNode;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
+import com.github.liuche51.easyTaskX.client.task.BrokerClockAdjustTask;
 import com.github.liuche51.easyTaskX.client.task.HeartbeatsTask;
 import com.github.liuche51.easyTaskX.client.task.OnceTask;
 import com.github.liuche51.easyTaskX.client.task.TimerTask;
@@ -47,6 +48,7 @@ public class ClusterService {
         node.setLastHeartbeat(DateUtils.getCurrentDateTime());
         ZKService.register(node);
         timerTasks.add(initHeartBeatToZK());
+        timerTasks.add(nodeClockAdjustTask());
         return true;
     }
 
@@ -82,5 +84,31 @@ public class ClusterService {
             }
         });
         return true;
+    }
+    /**
+     * 启动同步与其他关联节点的时钟差定时任务
+     */
+    public static TimerTask nodeClockAdjustTask() {
+        BrokerClockAdjustTask task=new BrokerClockAdjustTask();
+        task.start();
+        return task;
+    }
+    /**
+     * 同步与目标主机的时间差
+     * @param nodes
+     * @return
+     */
+    public static void syncObjectNodeClockDiffer(List<Node> nodes, int tryCount)
+    {
+        AnnularQueue.getInstance().getConfig().getClusterPool().submit(new Runnable() {
+            @Override
+            public void run() {
+                if (nodes != null) {
+                    nodes.forEach(x -> {
+                        ClusterUtil.syncBrokerClockDiffer(x,tryCount,5);
+                    });
+                }
+            }
+        });
     }
 }

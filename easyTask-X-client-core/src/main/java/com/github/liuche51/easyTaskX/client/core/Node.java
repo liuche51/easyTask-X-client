@@ -1,5 +1,6 @@
 package com.github.liuche51.easyTaskX.client.core;
 
+import com.github.liuche51.easyTaskX.client.dto.ClockDiffer;
 import com.github.liuche51.easyTaskX.client.enume.NodeSyncDataStatusEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyConnectionFactory;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 节点对象
@@ -24,9 +26,13 @@ public class Node implements Serializable {
      */
     private int dataStatus = NodeSyncDataStatusEnum.SYNC;
     /**
+     * 与目标主机的时钟差距
+     */
+    private ClockDiffer clockDiffer=new ClockDiffer();
+    /**
      * 当前节点的所有serverNodes
      */
-    private List<Node> brokers = new LinkedList<>();
+    private ConcurrentHashMap<String,Node> brokers = new ConcurrentHashMap<>();
 
     public Node(String host, int port) {
         this.host = host;
@@ -57,11 +63,19 @@ public class Node implements Serializable {
         this.dataStatus = dataStatus;
     }
 
-    public List<Node> getBrokers() {
+    public ClockDiffer getClockDiffer() {
+        return clockDiffer;
+    }
+
+    public void setClockDiffer(ClockDiffer clockDiffer) {
+        this.clockDiffer = clockDiffer;
+    }
+
+    public ConcurrentHashMap<String,Node> getBrokers() {
         return brokers;
     }
 
-    public void setBrokers(List<Node> brokers) {
+    public void setBrokers(ConcurrentHashMap<String,Node> brokers) {
         this.brokers = brokers;
     }
 
