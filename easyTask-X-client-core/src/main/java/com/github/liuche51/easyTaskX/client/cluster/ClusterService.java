@@ -47,11 +47,11 @@ public class ClusterService {
         node.setCreateTime(DateUtils.getCurrentDateTime());
         node.setLastHeartbeat(DateUtils.getCurrentDateTime());
         ZKService.register(node);
+        VoteBroker.initSelectBroker();
         timerTasks.add(initHeartBeatToZK());
         timerTasks.add(nodeClockAdjustTask());
         return true;
     }
-
     public static boolean submitTask(Task task) {
         return true;
     }
@@ -98,7 +98,7 @@ public class ClusterService {
      * @param nodes
      * @return
      */
-    public static void syncObjectNodeClockDiffer(List<Node> nodes, int tryCount)
+    public static void syncBrokerClockDiffer(List<Node> nodes, int tryCount)
     {
         AnnularQueue.getInstance().getConfig().getClusterPool().submit(new Runnable() {
             @Override

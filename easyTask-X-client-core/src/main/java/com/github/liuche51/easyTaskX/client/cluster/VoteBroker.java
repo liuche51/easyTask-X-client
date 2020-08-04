@@ -47,6 +47,7 @@ public class VoteBroker {
             ClusterService.CURRENTNODE.setBrokers(brokers);
             //通知follows当前Leader位置
             ClusterService.notifyBrokerPosition(broker, AnnularQueue.getInstance().getConfig().getTryCount());
+            ClusterService.syncBrokerClockDiffer(Arrays.asList(broker),AnnularQueue.getInstance().getConfig().getTryCount());
         }
     }
 
@@ -87,6 +88,7 @@ public class VoteBroker {
             throw new Exception("client is vote broker failed,please retry later.");
         //通知follows当前Leader位置
         ClusterService.notifyBrokerPosition(newBroker, AnnularQueue.getInstance().getConfig().getTryCount());
+        ClusterService.syncBrokerClockDiffer(Arrays.asList(newBroker),AnnularQueue.getInstance().getConfig().getTryCount());
         return newBroker;
     }
 
