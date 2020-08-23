@@ -40,13 +40,13 @@ public class VoteBroker {
         Node broker = VoteBroker.selectBroker(availableFollows);
         if (broker==null) {
             log.info("broker==null,so start to initSelectFollows");
-            initSelectBroker();//数量不够递归重新选VoteFollows.selectFollows中
+            initSelectBroker();//数量不够递归重新
         } else {
             ConcurrentHashMap<String,Node> brokers=new ConcurrentHashMap<>(1);
             brokers.put(broker.getAddress(),broker);
             ClusterService.CURRENTNODE.setBrokers(brokers);
             //通知follows当前Leader位置
-            ClusterService.notifyBrokerPosition(broker, AnnularQueue.getInstance().getConfig().getTryCount());
+            ClusterService.notifyBrokerClientPosition(broker, AnnularQueue.getInstance().getConfig().getTryCount(),5);
             ClusterService.syncBrokerClockDiffer(Arrays.asList(broker),AnnularQueue.getInstance().getConfig().getTryCount());
         }
     }
@@ -87,7 +87,7 @@ public class VoteBroker {
         if (newBroker == null)
             throw new Exception("client is vote broker failed,please retry later.");
         //通知follows当前Leader位置
-        ClusterService.notifyBrokerPosition(newBroker, AnnularQueue.getInstance().getConfig().getTryCount());
+        ClusterService.notifyBrokerClientPosition(newBroker, AnnularQueue.getInstance().getConfig().getTryCount(),5);
         ClusterService.syncBrokerClockDiffer(Arrays.asList(newBroker),AnnularQueue.getInstance().getConfig().getTryCount());
         return newBroker;
     }

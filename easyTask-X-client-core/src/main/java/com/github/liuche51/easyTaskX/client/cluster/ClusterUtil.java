@@ -22,30 +22,31 @@ public class ClusterUtil {
      * @param tryCount
      * @return
      */
-    public static boolean notifyBrokerPosition(Node broker, int tryCount) {
+    public static boolean notifyBrokerClientPosition(Node broker, int tryCount,int waiteSecond) {
         if (tryCount == 0) return false;
-        final boolean[] ret = {false};
+        String error = StringConstant.EMPTY;
         try {
             Dto.Frame.Builder builder = Dto.Frame.newBuilder();
             builder.setInterfaceName(NettyInterfaceEnum.SYNC_CLIENT_POSITION).setSource(AnnularQueue.getInstance().getConfig().getAddress())
                     .setBody(AnnularQueue.getInstance().getConfig().getAddress());
-            ChannelFuture future = NettyMsgService.sendASyncMsg(broker.getClient(),builder.build());
-            tryCount--;
-            future.addListener(new GenericFutureListener<Future<? super Void>>() {
-                @Override
-                public void operationComplete(Future<? super Void> future) throws Exception {
-                    if (future.isSuccess()) {
-                        ret[0] = true;
-                    }
-                }
-            });
-            if (ret[0])
+            Dto.Frame frame = NettyMsgService.sendSyncMsg(broker.getClient(), builder.build());
+            ResultDto.Result result = ResultDto.Result.parseFrom(frame.getBodyBytes());
+            if (StringConstant.TRUE.equals(result.getResult())) {
                 return true;
+            } else
+                error = result.getMsg();
         } catch (Exception e) {
+            log.error("notifyBrokerClientPosition.tryCount=" + tryCount, e);
+        } finally {
             tryCount--;
-            log.error("notifyFollowLeaderPosition.tryCount=" + tryCount, e);
         }
-        return ClusterUtil.notifyBrokerPosition(broker, tryCount);
+        log.info("notifyBrokerClientPosition()-> error" + error + ",tryCount=" + tryCount + ",objectHost=" + broker.getAddress());
+        try {
+            Thread.sleep(waiteSecond*1000);
+        } catch (InterruptedException e) {
+            log.error("",e);
+        }
+        return notifyBrokerClientPosition(broker, tryCount,waiteSecond);
     }
     /**
      * 同步与目标主机的时间差

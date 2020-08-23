@@ -17,7 +17,7 @@ public class HeartbeatsTask extends TimerTask {
             try {
                 ZKNode node = ZKService.getDataByCurrentNode();
                 node.setLastHeartbeat(DateUtils.getCurrentDateTime());
-                node.setServerNodes(Util.nodeToZKHost(ClusterService.CURRENTNODE.getBrokers()));//直接将本地数据覆盖到zk
+                node.setBrokers(Util.nodeToZKHost(ClusterService.CURRENTNODE.getBrokers()));//直接将本地数据覆盖到zk
                 ZKService.setDataByCurrentNode(node);
             } catch (Exception e) {
                 log.error("", e);

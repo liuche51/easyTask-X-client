@@ -6,7 +6,7 @@ public class NettyInterfaceEnum {
      */
     public static final String CLIENT_SUBMIT_TASK="Client_Submit_Task";
     /**
-     * 同步位置信息给Broker接口
+     * 同步位置信息给Client接口
      */
     public static final String SYNC_CLIENT_POSITION="SyncClientPosition";
     /**

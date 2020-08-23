@@ -17,7 +17,7 @@ public class ZKNode {
     /**
      * serverNodes
      */
-    private List<ZKHost> serverNodes=new LinkedList<>();
+    private List<ZKHost> brokers=new LinkedList<>();
     public ZKNode(){}
     public ZKNode(String host, int port){
         this.host=host;
@@ -40,12 +40,12 @@ public class ZKNode {
         this.port = port;
     }
 
-    public List<ZKHost> getServerNodes() {
-        return serverNodes;
+    public List<ZKHost> getBrokers() {
+        return brokers;
     }
 
-    public void setServerNodes(List<ZKHost> serverNodes) {
-        this.serverNodes = serverNodes;
+    public void setBrokers(List<ZKHost> brokers) {
+        this.brokers = brokers;
     }
 
     public String getLastHeartbeat() {

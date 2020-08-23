@@ -25,7 +25,7 @@ public class ClusterTest {
         AnnularQueue annularQueue = AnnularQueue.getInstance();
         EasyTaskConfig config =new EasyTaskConfig();
         try {
-            config.setServerPort(2021);
+            config.setServerPort(2031);
             initData(annularQueue,config,"Node1");
         } catch (Exception e) {
             e.printStackTrace();
@@ -37,6 +37,7 @@ public class ClusterTest {
         AnnularQueue annularQueue = AnnularQueue.getInstance();
         EasyTaskConfig config = new EasyTaskConfig();
         try {
+            config.setServerPort(2032);
             initData(annularQueue,config,"Node2");
         } catch (Exception e) {
             e.printStackTrace();
@@ -48,6 +49,7 @@ public class ClusterTest {
         AnnularQueue annularQueue = AnnularQueue.getInstance();
         EasyTaskConfig config = new EasyTaskConfig();
         try {
+            config.setServerPort(2033);
             initData(annularQueue,config,"Node3");
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,6 +61,7 @@ public class ClusterTest {
         AnnularQueue annularQueue = AnnularQueue.getInstance();
         EasyTaskConfig config =new EasyTaskConfig();
         try {
+            config.setServerPort(2034);
             initData(annularQueue,config,"Node4");
         } catch (Exception e) {
             e.printStackTrace();

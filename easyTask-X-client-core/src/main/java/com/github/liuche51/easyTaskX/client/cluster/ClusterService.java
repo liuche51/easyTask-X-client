@@ -74,12 +74,12 @@ public class ClusterService {
      *
      * @return
      */
-    public static boolean notifyBrokerPosition(Node broker, int tryCount) {
+    public static boolean notifyBrokerClientPosition(Node broker, int tryCount,int waiteSecond) {
         AnnularQueue.getInstance().getConfig().getClusterPool().submit(new Runnable() {
             @Override
             public void run() {
                 if (broker != null) {
-                    ClusterUtil.notifyBrokerPosition(broker, tryCount);
+                    ClusterUtil.notifyBrokerClientPosition(broker, tryCount, waiteSecond);
                 }
             }
         });

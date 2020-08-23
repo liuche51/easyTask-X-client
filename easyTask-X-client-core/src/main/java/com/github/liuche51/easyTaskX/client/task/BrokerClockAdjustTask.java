@@ -42,7 +42,7 @@ public class BrokerClockAdjustTask extends TimerTask {
         //如果还没有同步过时钟差或距离上次同步已经过去5分钟了，则重新同步一次
         if (!differ.isHasSync() || ZonedDateTime.now().minusMinutes(5)
                 .compareTo(differ.getLastSyncDate()) > 0) {
-            ClusterService.syncObjectNodeClockDiffer(Arrays.asList(node), AnnularQueue.getInstance().getConfig().getTryCount());
+            ClusterService.syncBrokerClockDiffer(Arrays.asList(node), AnnularQueue.getInstance().getConfig().getTryCount());
         }
     }
 }
