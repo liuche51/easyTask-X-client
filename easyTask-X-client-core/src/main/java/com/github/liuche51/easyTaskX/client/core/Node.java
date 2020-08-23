@@ -22,10 +22,6 @@ public class Node implements Serializable {
     private String host = "";
     private int port = AnnularQueue.getInstance().getConfig().getServerPort();
     /**
-     * 数据一致性状态。
-     */
-    private int dataStatus = NodeSyncDataStatusEnum.SYNC;
-    /**
      * 与目标主机的时钟差距
      */
     private ClockDiffer clockDiffer=new ClockDiffer();
@@ -53,14 +49,6 @@ public class Node implements Serializable {
 
     public void setPort(int port) {
         this.port = port;
-    }
-
-    public int getDataStatus() {
-        return dataStatus;
-    }
-
-    public void setDataStatus(int dataStatus) {
-        this.dataStatus = dataStatus;
     }
 
     public ClockDiffer getClockDiffer() {

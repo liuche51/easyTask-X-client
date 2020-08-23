@@ -3,6 +3,7 @@ package com.github.liuche51.easyTaskX.client.cluster;
 import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
 import com.github.liuche51.easyTaskX.client.core.Node;
 import com.github.liuche51.easyTaskX.client.dto.zk.ZKNode;
+import com.github.liuche51.easyTaskX.client.netty.client.NettyConnectionFactory;
 import com.github.liuche51.easyTaskX.client.util.DateUtils;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import com.github.liuche51.easyTaskX.client.util.exception.VotedException;
@@ -38,16 +39,16 @@ public class VoteBroker {
     public static void initSelectBroker() throws Exception {
         List<String> availableFollows = VoteBroker.getAvailableBrokers(null);
         Node broker = VoteBroker.selectBroker(availableFollows);
-        if (broker==null) {
+        if (broker == null) {
             log.info("broker==null,so start to initSelectFollows");
             initSelectBroker();//数量不够递归重新
         } else {
-            ConcurrentHashMap<String,Node> brokers=new ConcurrentHashMap<>(1);
-            brokers.put(broker.getAddress(),broker);
+            ConcurrentHashMap<String, Node> brokers = new ConcurrentHashMap<>(1);
+            brokers.put(broker.getAddress(), broker);
             ClusterService.CURRENTNODE.setBrokers(brokers);
             //通知follows当前Leader位置
-            ClusterService.notifyBrokerClientPosition(broker, AnnularQueue.getInstance().getConfig().getTryCount(),5);
-            ClusterService.syncBrokerClockDiffer(Arrays.asList(broker),AnnularQueue.getInstance().getConfig().getTryCount());
+            ClusterService.notifyBrokerClientPosition(broker, AnnularQueue.getInstance().getConfig().getTryCount(), 5);
+            ClusterService.syncBrokerClockDiffer(Arrays.asList(broker), AnnularQueue.getInstance().getConfig().getTryCount());
         }
     }
 
@@ -55,29 +56,26 @@ public class VoteBroker {
      * 选择新follow
      * leader同步数据失败或心跳检测失败，则进入选新follow程序
      *
-     * @param items 是否在迭代器中访问，是则使用迭代器移除元素
      * @return
      */
-    public static Node voteNewBroker(Node oldBroker, Iterator<Node> items) throws Exception {
+    public static Node voteNewBroker(Node oldBroker) throws Exception {
         if (voting) throw new VotingException("cluster is voting new Broker,please retry later.");
         voting = true;
         Node newBroker = null;
         try {
             lock.lock();
-            if (ClusterService.CURRENTNODE.getBrokers().contains(oldBroker)) {
-                if (items != null) items.remove();//如果使用以下List集合方法移除，会导致下次items.next()方法报错
-                log.info("client remove Broker {}", oldBroker.getAddress());
-            } else
-                ClusterService.CURRENTNODE.getBrokers().remove(oldBroker);//移除失效的follow
+            ClusterService.CURRENTNODE.getBrokers().remove(oldBroker);//移除失效的follow
+            NettyConnectionFactory.getInstance().removeHostPool(oldBroker.getAddress());
+            log.info("client remove Broker {}", oldBroker.getAddress());
             //多线程下，如果follows已经选好，则让客户端重新提交任务。以后可以优化为获取选举后的follow
-            if (ClusterService.CURRENTNODE.getBrokers() != null&&ClusterService.CURRENTNODE.getBrokers().size()>0)
+            if (ClusterService.CURRENTNODE.getBrokers() != null && ClusterService.CURRENTNODE.getBrokers().size() > 0)
                 throw new VotedException("client is voted broker,please retry again.");
             List<String> availableFollows = getAvailableBrokers(Arrays.asList(oldBroker.getAddress()));
             newBroker = selectBroker(availableFollows);
-            if (newBroker==null)
-                voteNewBroker(oldBroker, items);//没选出来递归重新选
+            if (newBroker == null)
+                voteNewBroker(oldBroker);//没选出来递归重新选
             else {
-                ClusterService.CURRENTNODE.getBrokers().put(newBroker.getAddress(),newBroker);
+                ClusterService.CURRENTNODE.getBrokers().put(newBroker.getAddress(), newBroker);
             }
 
         } finally {
@@ -87,8 +85,8 @@ public class VoteBroker {
         if (newBroker == null)
             throw new Exception("client is vote broker failed,please retry later.");
         //通知follows当前Leader位置
-        ClusterService.notifyBrokerClientPosition(newBroker, AnnularQueue.getInstance().getConfig().getTryCount(),5);
-        ClusterService.syncBrokerClockDiffer(Arrays.asList(newBroker),AnnularQueue.getInstance().getConfig().getTryCount());
+        ClusterService.notifyBrokerClientPosition(newBroker, AnnularQueue.getInstance().getConfig().getTryCount(), 5);
+        ClusterService.syncBrokerClockDiffer(Arrays.asList(newBroker), AnnularQueue.getInstance().getConfig().getTryCount());
         return newBroker;
     }
 

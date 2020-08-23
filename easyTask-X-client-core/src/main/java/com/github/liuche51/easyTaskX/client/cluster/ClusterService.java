@@ -7,10 +7,7 @@ import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.zk.ZKNode;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
-import com.github.liuche51.easyTaskX.client.task.BrokerClockAdjustTask;
-import com.github.liuche51.easyTaskX.client.task.HeartbeatsTask;
-import com.github.liuche51.easyTaskX.client.task.OnceTask;
-import com.github.liuche51.easyTaskX.client.task.TimerTask;
+import com.github.liuche51.easyTaskX.client.task.*;
 import com.github.liuche51.easyTaskX.client.util.DateUtils;
 import com.github.liuche51.easyTaskX.client.util.Util;
 import com.github.liuche51.easyTaskX.client.zk.ZKService;
@@ -50,6 +47,7 @@ public class ClusterService {
         VoteBroker.initSelectBroker();
         timerTasks.add(initHeartBeatToZK());
         timerTasks.add(nodeClockAdjustTask());
+        timerTasks.add(initCheckBrokersAlive());
         return true;
     }
     public static boolean submitTask(Task task) {
@@ -110,5 +108,14 @@ public class ClusterService {
                 }
             }
         });
+    }
+    /**
+     * 节点对zk的心跳。检查brokers是否失效。
+     * 失效则进入选举
+     */
+    public static TimerTask initCheckBrokersAlive() {
+        CheckBrokersAliveTask task=new CheckBrokersAliveTask();
+        task.start();
+        return task;
     }
 }

@@ -7,6 +7,7 @@ import com.github.liuche51.easyTaskX.client.dto.proto.ResultDto;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
+import com.github.liuche51.easyTaskX.client.util.Util;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -27,7 +28,7 @@ public class ClusterUtil {
         String error = StringConstant.EMPTY;
         try {
             Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-            builder.setInterfaceName(NettyInterfaceEnum.SYNC_CLIENT_POSITION).setSource(AnnularQueue.getInstance().getConfig().getAddress())
+            builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.SYNC_CLIENT_POSITION).setSource(AnnularQueue.getInstance().getConfig().getAddress())
                     .setBody(AnnularQueue.getInstance().getConfig().getAddress());
             Dto.Frame frame = NettyMsgService.sendSyncMsg(broker.getClient(), builder.build());
             ResultDto.Result result = ResultDto.Result.parseFrom(frame.getBodyBytes());
@@ -59,7 +60,7 @@ public class ClusterUtil {
         Dto.Frame frame = null;
         try {
             Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-            builder.setInterfaceName(NettyInterfaceEnum.SYNC_CLOCK_DIFFER).setSource(AnnularQueue.getInstance().getConfig().getAddress())
+            builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.SYNC_CLOCK_DIFFER).setSource(AnnularQueue.getInstance().getConfig().getAddress())
                     .setBody(AnnularQueue.getInstance().getConfig().getAddress());
             long start = System.currentTimeMillis();
             frame = NettyMsgService.sendSyncMsg(node.getClient(), builder.build());
