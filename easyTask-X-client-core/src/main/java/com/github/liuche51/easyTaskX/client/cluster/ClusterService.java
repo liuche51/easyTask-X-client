@@ -78,6 +78,7 @@ public class ClusterService {
             }
         } else
             selectedNode = items.next().getValue();
+        task.getTaskExt().setBroker(selectedNode.getAddress());//将任务所属服务端节点标记一下
         Dto.Frame.Builder builder = Dto.Frame.newBuilder();
         builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.CLIENT_SUBMIT_TASK).setSource(AnnularQueue.getInstance().getConfig().getAddress())
                 .setBodyBytes(schedule.toByteString());

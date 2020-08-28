@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
 import com.github.liuche51.easyTaskX.client.dto.zk.ZKNode;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
+import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
@@ -106,7 +107,7 @@ public class ZKService {
      */
     public static ZKNode getDataByCurrentNode() throws UnknownHostException {
         String path = StringConstant.CHAR_SPRIT+ StringConstant.CLIENT+StringConstant.CHAR_SPRIT + AnnularQueue.getInstance().getConfig().getAddress();
-        return getDataByPath(path);
+        return getDataByPath(path,null);
     }
 
     /**
@@ -115,9 +116,9 @@ public class ZKService {
      * @param path
      * @return
      */
-    public static ZKNode getDataByPath(String path) {
+    public static ZKNode getDataByPath(String path, CuratorWatcher watcher) {
         try {
-            byte[] bytes = ZKUtil.getClient().getData().forPath(path);
+            byte[] bytes = ZKUtil.getClient().getData().usingWatcher(watcher).forPath(path);
             return JSONObject.parseObject(bytes, ZKNode.class);
         } catch (Exception e) {
             //节点不存在了，属于正常情况。
