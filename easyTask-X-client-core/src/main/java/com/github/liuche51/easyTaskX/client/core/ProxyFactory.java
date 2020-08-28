@@ -33,7 +33,7 @@ class ProxyFactory {
                         }finally {
                             log.debug("任务:{} 代理执行结束", id);
                             if (target.getTaskType().equals(TaskType.ONECE)){
-                                boolean ret = ClusterService.deleteTask(id);
+                                boolean ret = ClusterService.deleteTask(id,target.getTaskExt().getBroker());
                                 if (ret)
                                 {
                                     log.debug("任务:{} 执行完成，已从持久化记录中删除", id);

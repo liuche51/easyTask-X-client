@@ -4,10 +4,12 @@ import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
 import com.github.liuche51.easyTaskX.client.core.Node;
 import com.github.liuche51.easyTaskX.client.dto.Task;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
+import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 import com.github.liuche51.easyTaskX.client.dto.zk.ZKNode;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
 import com.github.liuche51.easyTaskX.client.task.*;
+import com.github.liuche51.easyTaskX.client.task.TimerTask;
 import com.github.liuche51.easyTaskX.client.util.DateUtils;
 import com.github.liuche51.easyTaskX.client.util.Util;
 import com.github.liuche51.easyTaskX.client.zk.ZKService;
@@ -17,8 +19,9 @@ import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.net.UnknownHostException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ClusterService {
     private static Logger log = LoggerFactory.getLogger(ClusterService.class);
@@ -50,12 +53,62 @@ public class ClusterService {
         timerTasks.add(initCheckBrokersAlive());
         return true;
     }
-    public static boolean submitTask(Task task) {
-        return true;
+
+    /**
+     * 提交新任务到集群
+     * 如果有多个Broker，则采用随机算法挑选一个
+     *
+     * @param task
+     * @throws Exception
+     */
+    public static void submitTask(Task task) throws Exception {
+        ScheduleDto.Schedule schedule = task.toScheduleDto();
+        ConcurrentHashMap<String, Node> brokers = CURRENTNODE.getBrokers();
+        Iterator<Map.Entry<String, Node>> items = brokers.entrySet().iterator();
+        Node selectedNode = null;
+        if (brokers.size() > 1) {
+            Random random = new Random();
+            int index = random.nextInt(brokers.size());//随机生成的随机数范围就变成[0,size)。
+            int flag = 0;
+            while (items.hasNext()) {
+                if (index == flag) {
+                    selectedNode = items.next().getValue();
+                    break;
+                }
+            }
+        } else
+            selectedNode = items.next().getValue();
+        Dto.Frame.Builder builder = Dto.Frame.newBuilder();
+        builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.CLIENT_SUBMIT_TASK).setSource(AnnularQueue.getInstance().getConfig().getAddress())
+                .setBodyBytes(schedule.toByteString());
+        boolean ret = ClusterUtil.sendSyncMsgWithCount(selectedNode.getClientWithCount(1), builder.build(), 1);
+        if (!ret) {
+            throw new Exception("sendSyncMsgWithCount()->exception! ");
+        }
     }
 
-    public static boolean deleteTask(String taskId) {
-        return true;
+    /**
+     * 删除任务。
+     * 已执行完毕的任务，系统自动删除用
+     *
+     * @param taskId
+     * @param brokerAddress
+     * @throws Exception
+     */
+    public static boolean deleteTask(String taskId, String brokerAddress) {
+        try {
+            Node broker = CURRENTNODE.getBrokers().get(brokerAddress);
+            if (broker != null) {
+                Dto.Frame.Builder builder = Dto.Frame.newBuilder();
+                builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.CLIENT_DELETE_TASK).setSource(AnnularQueue.getInstance().getConfig().getAddress())
+                        .setBody(taskId);
+                boolean ret = ClusterUtil.sendSyncMsgWithCount(broker.getClientWithCount(1), builder.build(), 1);
+                return ret;
+            }
+        } catch (Exception e) {
+            log.error("deleteTask()-> exception!", e);
+        }
+        return false;
     }
 
     /**
@@ -72,7 +125,7 @@ public class ClusterService {
      *
      * @return
      */
-    public static boolean notifyBrokerClientPosition(Node broker, int tryCount,int waiteSecond) {
+    public static boolean notifyBrokerClientPosition(Node broker, int tryCount, int waiteSecond) {
         AnnularQueue.getInstance().getConfig().getClusterPool().submit(new Runnable() {
             @Override
             public void run() {
@@ -83,38 +136,41 @@ public class ClusterService {
         });
         return true;
     }
+
     /**
      * 启动同步与其他关联节点的时钟差定时任务
      */
     public static TimerTask nodeClockAdjustTask() {
-        BrokerClockAdjustTask task=new BrokerClockAdjustTask();
+        BrokerClockAdjustTask task = new BrokerClockAdjustTask();
         task.start();
         return task;
     }
+
     /**
      * 同步与目标主机的时间差
+     *
      * @param nodes
      * @return
      */
-    public static void syncBrokerClockDiffer(List<Node> nodes, int tryCount)
-    {
+    public static void syncBrokerClockDiffer(List<Node> nodes, int tryCount) {
         AnnularQueue.getInstance().getConfig().getClusterPool().submit(new Runnable() {
             @Override
             public void run() {
                 if (nodes != null) {
                     nodes.forEach(x -> {
-                        ClusterUtil.syncBrokerClockDiffer(x,tryCount,5);
+                        ClusterUtil.syncBrokerClockDiffer(x, tryCount, 5);
                     });
                 }
             }
         });
     }
+
     /**
      * 节点对zk的心跳。检查brokers是否失效。
      * 失效则进入选举
      */
     public static TimerTask initCheckBrokersAlive() {
-        CheckBrokersAliveTask task=new CheckBrokersAliveTask();
+        CheckBrokersAliveTask task = new CheckBrokersAliveTask();
         task.start();
         return task;
     }

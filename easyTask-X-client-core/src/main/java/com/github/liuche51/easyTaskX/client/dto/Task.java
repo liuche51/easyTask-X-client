@@ -1,7 +1,10 @@
 package com.github.liuche51.easyTaskX.client.dto;
 
+import com.alibaba.fastjson.JSONObject;
+import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.core.TimeUnit;
+import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -100,5 +103,17 @@ public class Task {
             default:
                 return null;
         }
+    }
+    /**
+     * 转换为protocol buffer对象
+     * @return
+     */
+    public ScheduleDto.Schedule toScheduleDto() throws Exception {
+        ScheduleDto.Schedule.Builder builder=ScheduleDto.Schedule.newBuilder();
+        builder.setId(this.getTaskExt().getId()).setClassPath(this.getTaskExt().getTaskClassPath()).setExecuteTime(this.getEndTimestamp())
+                .setTaskType(this.getTaskType().name()).setPeriod(this.period).setUnit(this.getUnit().name())
+                .setParam(JSONObject.toJSONString(this.getParam())).setSource(AnnularQueue.getInstance().getConfig().getAddress())
+                .setTransactionId("");
+        return builder.build();
     }
 }

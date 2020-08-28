@@ -4,7 +4,11 @@ public class NettyInterfaceEnum {
     /**
      * 客户端提交任务
      */
-    public static final String CLIENT_SUBMIT_TASK="Client_Submit_Task";
+    public static final String CLIENT_SUBMIT_TASK="ClientSubmitTask";
+    /**
+     * 客户端删除任务
+     */
+    public static final String CLIENT_DELETE_TASK="ClientDeleteTask";
     /**
      * 同步位置信息给Client接口
      */

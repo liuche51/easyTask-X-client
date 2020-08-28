@@ -4,6 +4,7 @@ public class TaskExt {
     private String id;
     private String taskClassPath;
     private String source;
+    private String broker;
     public String getId() {
         return id;
     }
@@ -23,5 +24,13 @@ public class TaskExt {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getBroker() {
+        return broker;
+    }
+
+    public void setBroker(String broker) {
+        this.broker = broker;
     }
 }
