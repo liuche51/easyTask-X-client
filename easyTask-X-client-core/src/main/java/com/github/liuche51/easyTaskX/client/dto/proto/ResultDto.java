@@ -134,12 +134,12 @@ public final class ResultDto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return ResultDto.internal_static_Result_descriptor;
+      return com.github.liuche51.easyTaskX.client.dto.proto.ResultDto.internal_static_Result_descriptor;
     }
 
     protected FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return ResultDto.internal_static_Result_fieldAccessorTable
+      return com.github.liuche51.easyTaskX.client.dto.proto.ResultDto.internal_static_Result_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               Result.class, Builder.class);
     }
@@ -426,12 +426,12 @@ public final class ResultDto {
        implements ResultOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return ResultDto.internal_static_Result_descriptor;
+        return com.github.liuche51.easyTaskX.client.dto.proto.ResultDto.internal_static_Result_descriptor;
       }
 
       protected FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return ResultDto.internal_static_Result_fieldAccessorTable
+        return com.github.liuche51.easyTaskX.client.dto.proto.ResultDto.internal_static_Result_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 Result.class, Builder.class);
       }
@@ -471,7 +471,7 @@ public final class ResultDto {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return ResultDto.internal_static_Result_descriptor;
+        return com.github.liuche51.easyTaskX.client.dto.proto.ResultDto.internal_static_Result_descriptor;
       }
 
       public Result getDefaultInstanceForType() {

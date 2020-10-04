@@ -1,6 +1,6 @@
 package com.github.liuche51.easyTaskX.client.core;
 
-import com.github.liuche51.easyTaskX.client.cluster.ClusterService;
+import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import com.github.liuche51.easyTaskX.client.dto.Task;
 import com.github.liuche51.easyTaskX.client.netty.server.NettyServer;
 import com.github.liuche51.easyTaskX.client.util.Util;
@@ -85,7 +85,7 @@ public class AnnularQueue {
         if (isRunning)
             return;
         NettyServer.getInstance().run();//启动组件的Netty服务端口
-        ClusterService.initCurrentNode();
+        NodeService.initCurrentNode();
         isRunning = true;
         int lastSecond = 0;
         while (true) {
@@ -155,7 +155,7 @@ public class AnnularQueue {
             task.setEndTimestamp(Task.getNextExcuteTimeStamp(task.getPeriod(), task.getUnit()));
         }
         //以下两行代码不要调换，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
-        ClusterService.submitTask(task);
+        NodeService.submitTask(task);
         submitAddSlice(task);
         return task.getTaskExt().getId();
     }
@@ -169,7 +169,7 @@ public class AnnularQueue {
      */
     public void delete(String taskId) throws Exception {
         if (!isRunning) throw new Exception("the easyTask has not started,please wait a moment!");
-        boolean ret = ClusterService.deleteTask(taskId);
+        boolean ret = NodeService.deleteTask(taskId);
         if (!ret)
             throw new Exception("delete failed! please try agin.");
         boolean hasDel = false;

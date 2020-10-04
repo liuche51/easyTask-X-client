@@ -10,11 +10,7 @@ public class NettyInterfaceEnum {
      */
     public static final String CLIENT_DELETE_TASK="ClientDeleteTask";
     /**
-     * 同步位置信息给Client接口
+     * Follow对Leader的心跳接口
      */
-    public static final String SYNC_CLIENT_POSITION="SyncClientPosition";
-    /**
-     * 获取与目标主机的时钟差距接口
-     */
-    public static final String SYNC_CLOCK_DIFFER="SyncClockDiffer";
+    public static final String Heartbeat="Heartbeat";
 }

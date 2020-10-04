@@ -1,30 +1,29 @@
 package com.github.liuche51.easyTaskX.client.cluster;
 
 import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
-import com.github.liuche51.easyTaskX.client.core.Node;
+import com.github.liuche51.easyTaskX.client.core.EasyTaskConfig;
+import com.github.liuche51.easyTaskX.client.dto.BaseNode;
+import com.github.liuche51.easyTaskX.client.dto.Node;
 import com.github.liuche51.easyTaskX.client.dto.Task;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
-import com.github.liuche51.easyTaskX.client.dto.zk.ZKNode;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
-import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
+import com.github.liuche51.easyTaskX.client.netty.server.NettyServer;
 import com.github.liuche51.easyTaskX.client.task.*;
 import com.github.liuche51.easyTaskX.client.task.TimerTask;
 import com.github.liuche51.easyTaskX.client.util.DateUtils;
 import com.github.liuche51.easyTaskX.client.util.Util;
 import com.github.liuche51.easyTaskX.client.zk.ZKService;
-import io.netty.channel.ChannelFuture;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ClusterService {
-    private static Logger log = LoggerFactory.getLogger(ClusterService.class);
+public class NodeService {
+    private static Logger log = LoggerFactory.getLogger(NodeService.class);
+    private static EasyTaskConfig config = null;
+    private static volatile boolean isStarted = false;//是否已经启动
     /**
      * 当前集群节点的Node对象
      */
@@ -40,18 +39,36 @@ public class ClusterService {
      * 系统没有重启只是初始化了集群initCurrentNode()。此时需要停止之前的定时任务，重新启动新的
      */
     public static List<TimerTask> timerTasks = new LinkedList<TimerTask>();
+    public static EasyTaskConfig getConfig() {
+        return config;
+    }
 
-    public static boolean initCurrentNode() throws Exception {
+    public static void setConfig(EasyTaskConfig config) {
+        NodeService.config = config;
+    }
+    /**
+     * 启动节点。
+     * 线程互斥
+     * @param config
+     * @throws Exception
+     */
+    public static synchronized void start(EasyTaskConfig config) throws Exception {
+        //避免重复执行
+        if (isStarted)
+            return;
+        if (config == null)
+            throw new Exception("config is null,please set a EasyTaskConfig!");
+        EasyTaskConfig.validateNecessary(config);
+        NodeService.config = config;
+        NettyServer.getInstance().run();//启动组件的Netty服务端口
+        initCurrentNode();//初始化本节点的集群服务
+        isStarted=true;
+    }
+
+    public static void initCurrentNode() throws Exception {
         CURRENTNODE = new Node(Util.getLocalIP(), AnnularQueue.getInstance().getConfig().getServerPort());
-        ZKNode node = new ZKNode(CURRENTNODE.getHost(), CURRENTNODE.getPort());
-        node.setCreateTime(DateUtils.getCurrentDateTime());
-        node.setLastHeartbeat(DateUtils.getCurrentDateTime());
-        ZKService.register(node);
-        VoteBroker.initSelectBroker();
-        timerTasks.add(initHeartBeatToZK());
-        timerTasks.add(nodeClockAdjustTask());
-        timerTasks.add(initCheckBrokersAlive());
-        return true;
+        timerTasks.add(startAnnularQueueTask());
+        timerTasks.add(startHeartBeat());
     }
 
     /**
@@ -63,9 +80,9 @@ public class ClusterService {
      */
     public static void submitTask(Task task) throws Exception {
         ScheduleDto.Schedule schedule = task.toScheduleDto();
-        ConcurrentHashMap<String, Node> brokers = CURRENTNODE.getBrokers();
-        Iterator<Map.Entry<String, Node>> items = brokers.entrySet().iterator();
-        Node selectedNode = null;
+        ConcurrentHashMap<String, BaseNode> brokers = CURRENTNODE.getBrokers();
+        Iterator<Map.Entry<String, BaseNode>> items = brokers.entrySet().iterator();
+        BaseNode selectedNode = null;
         if (brokers.size() > 1) {
             Random random = new Random();
             int index = random.nextInt(brokers.size());//随机生成的随机数范围就变成[0,size)。
@@ -82,7 +99,7 @@ public class ClusterService {
         Dto.Frame.Builder builder = Dto.Frame.newBuilder();
         builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.CLIENT_SUBMIT_TASK).setSource(AnnularQueue.getInstance().getConfig().getAddress())
                 .setBodyBytes(schedule.toByteString());
-        boolean ret = ClusterUtil.sendSyncMsgWithCount(selectedNode.getClientWithCount(1), builder.build(), 1);
+        boolean ret = NodeUtil.sendSyncMsgWithCount(selectedNode.getClientWithCount(1), builder.build(), 1);
         if (!ret) {
             throw new Exception("sendSyncMsgWithCount()->exception! ");
         }
@@ -98,12 +115,12 @@ public class ClusterService {
      */
     public static boolean deleteTask(String taskId, String brokerAddress) {
         try {
-            Node broker = CURRENTNODE.getBrokers().get(brokerAddress);
+            BaseNode broker = CURRENTNODE.getBrokers().get(brokerAddress);
             if (broker != null) {
                 Dto.Frame.Builder builder = Dto.Frame.newBuilder();
                 builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.CLIENT_DELETE_TASK).setSource(AnnularQueue.getInstance().getConfig().getAddress())
                         .setBody(taskId);
-                boolean ret = ClusterUtil.sendSyncMsgWithCount(broker.getClientWithCount(1), builder.build(), 1);
+                boolean ret = NodeUtil.sendSyncMsgWithCount(broker.getClientWithCount(1), builder.build(), 1);
                 return ret;
             }
         } catch (Exception e) {
@@ -113,65 +130,19 @@ public class ClusterService {
     }
 
     /**
-     * 节点对zk的心跳。2s一次
+     * 节点对leader的心跳。
      */
-    public static TimerTask initHeartBeatToZK() {
+    public static TimerTask startHeartBeat() {
         HeartbeatsTask task = new HeartbeatsTask();
         task.start();
         return task;
     }
 
     /**
-     * 通知follows当前Leader位置。异步调用即可
-     *
-     * @return
+     * 启动任务执行器
      */
-    public static boolean notifyBrokerClientPosition(Node broker, int tryCount, int waiteSecond) {
-        AnnularQueue.getInstance().getConfig().getClusterPool().submit(new Runnable() {
-            @Override
-            public void run() {
-                if (broker != null) {
-                    ClusterUtil.notifyBrokerClientPosition(broker, tryCount, waiteSecond);
-                }
-            }
-        });
-        return true;
-    }
-
-    /**
-     * 启动同步与其他关联节点的时钟差定时任务
-     */
-    public static TimerTask nodeClockAdjustTask() {
-        BrokerClockAdjustTask task = new BrokerClockAdjustTask();
-        task.start();
-        return task;
-    }
-
-    /**
-     * 同步与目标主机的时间差
-     *
-     * @param nodes
-     * @return
-     */
-    public static void syncBrokerClockDiffer(List<Node> nodes, int tryCount) {
-        AnnularQueue.getInstance().getConfig().getClusterPool().submit(new Runnable() {
-            @Override
-            public void run() {
-                if (nodes != null) {
-                    nodes.forEach(x -> {
-                        ClusterUtil.syncBrokerClockDiffer(x, tryCount, 5);
-                    });
-                }
-            }
-        });
-    }
-
-    /**
-     * 节点对zk的心跳。检查brokers是否失效。
-     * 失效则进入选举
-     */
-    public static TimerTask initCheckBrokersAlive() {
-        CheckBrokersAliveTask task = new CheckBrokersAliveTask();
+    public static TimerTask startAnnularQueueTask() {
+        AnnularQueueTask task = new AnnularQueueTask();
         task.start();
         return task;
     }

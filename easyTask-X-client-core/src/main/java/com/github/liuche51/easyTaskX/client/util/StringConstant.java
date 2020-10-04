@@ -1,8 +1,7 @@
 package com.github.liuche51.easyTaskX.client.util;
 
 public class StringConstant {
-    public static final String SERVER="Server";
-    public static final String CLIENT="Client";
+    public static final String LEADER="Leader";
     public static final String CHAR_SPRIT="/";
     public static final String EMPTY="";
     public static final String TRUE="true";

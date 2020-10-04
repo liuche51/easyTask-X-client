@@ -1,40 +1,26 @@
-package com.github.liuche51.easyTaskX.client.core;
+package com.github.liuche51.easyTaskX.client.dto;
 
-import com.github.liuche51.easyTaskX.client.dto.ClockDiffer;
-import com.github.liuche51.easyTaskX.client.enume.NodeSyncDataStatusEnum;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * 节点对象
- */
-public class Node implements Serializable {
-    private static final Logger log = LoggerFactory.getLogger(Node.class);
+public class BaseNode implements Serializable {
+    private static final Logger log = LoggerFactory.getLogger(BaseNode.class);
     private String host = "";
-    private int port = AnnularQueue.getInstance().getConfig().getServerPort();
-    /**
-     * 与目标主机的时钟差距
-     */
-    private ClockDiffer clockDiffer=new ClockDiffer();
-    /**
-     * 当前节点的所有serverNodes
-     */
-    private ConcurrentHashMap<String,Node> brokers = new ConcurrentHashMap<>();
-
-    public Node(String host, int port) {
-        this.host = host;
-        this.port = port;
+    private int port;
+    public BaseNode(String host, int port){
+        this.host=host;
+        this.port=port;
     }
-
+    public BaseNode(String address) {
+        String[] ret=address.split(":");
+        this.host = ret[0];
+        this.port = Integer.parseInt(ret[1]);
+    }
     public String getHost() {
         return host;
     }
@@ -51,28 +37,13 @@ public class Node implements Serializable {
         this.port = port;
     }
 
-    public ClockDiffer getClockDiffer() {
-        return clockDiffer;
-    }
-
-    public void setClockDiffer(ClockDiffer clockDiffer) {
-        this.clockDiffer = clockDiffer;
-    }
-
-    public ConcurrentHashMap<String,Node> getBrokers() {
-        return brokers;
-    }
-
-    public void setBrokers(ConcurrentHashMap<String,Node> brokers) {
-        this.brokers = brokers;
-    }
-
+    @JSONField(serialize = false)
     public String getAddress() {
         StringBuffer str = new StringBuffer(this.host);
         str.append(":").append(this.port);
         return str.toString();
     }
-
+    @JSONField(serialize = false)
     public NettyClient getClient() throws InterruptedException {
         return NettyConnectionFactory.getInstance().getConnection(host, port);
     }
@@ -83,6 +54,7 @@ public class Node implements Serializable {
      * @param tryCount
      * @return
      */
+    @JSONField(serialize = false)
     public NettyClient getClientWithCount(int tryCount) throws Exception {
         if (tryCount == 0) throw new Exception("getClientWithCount()-> exception!");
         try {

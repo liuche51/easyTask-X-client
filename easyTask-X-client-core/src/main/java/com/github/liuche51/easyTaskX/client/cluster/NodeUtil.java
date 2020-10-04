@@ -1,7 +1,7 @@
 package com.github.liuche51.easyTaskX.client.cluster;
 
 import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
-import com.github.liuche51.easyTaskX.client.core.Node;
+import com.github.liuche51.easyTaskX.client.dto.Node;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.ResultDto;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
@@ -9,16 +9,13 @@ import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import com.github.liuche51.easyTaskX.client.util.Util;
-import io.netty.channel.ChannelFuture;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.ZonedDateTime;
 
-public class ClusterUtil {
-    private static Logger log = LoggerFactory.getLogger(ClusterUtil.class);
+public class NodeUtil {
+    private static Logger log = LoggerFactory.getLogger(NodeUtil.class);
     /**
      * 带重试次数的同步消息发送
      *

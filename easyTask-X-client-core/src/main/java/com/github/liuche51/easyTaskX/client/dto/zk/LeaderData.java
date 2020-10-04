@@ -1,29 +1,18 @@
 package com.github.liuche51.easyTaskX.client.dto.zk;
 
 
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
-
-import java.util.LinkedList;
-import java.util.List;
-
-public class ZKNode {
+public class LeaderData {
     private String host;
-    private int port= AnnularQueue.getInstance().getConfig().getServerPort();
+    private int port;
     /**
      * 最近一次心跳时间
      */
     private String lastHeartbeat;
     private String createTime;
-    /**
-     * serverNodes
-     */
-    private List<ZKHost> brokers=new LinkedList<>();
-    public ZKNode(){}
-    public ZKNode(String host, int port){
+    public LeaderData(String host, int port){
         this.host=host;
         this.port=port;
     }
-
     public String getHost() {
         return host;
     }
@@ -38,14 +27,6 @@ public class ZKNode {
 
     public void setPort(int port) {
         this.port = port;
-    }
-
-    public List<ZKHost> getBrokers() {
-        return brokers;
-    }
-
-    public void setBrokers(List<ZKHost> brokers) {
-        this.brokers = brokers;
     }
 
     public String getLastHeartbeat() {

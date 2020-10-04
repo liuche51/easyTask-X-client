@@ -2,8 +2,7 @@ package com.github.liuche51.easyTaskX.client.util;
 
 
 import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
-import com.github.liuche51.easyTaskX.client.core.Node;
-import com.github.liuche51.easyTaskX.client.dto.zk.ZKHost;
+import com.github.liuche51.easyTaskX.client.dto.Node;
 
 import java.io.File;
 import java.io.IOException;
