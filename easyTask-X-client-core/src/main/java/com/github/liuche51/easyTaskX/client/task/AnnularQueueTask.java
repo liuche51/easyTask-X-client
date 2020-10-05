@@ -1,20 +1,11 @@
 package com.github.liuche51.easyTaskX.client.task;
 
 import com.github.liuche51.easyTaskX.client.cluster.NodeService;
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
 import com.github.liuche51.easyTaskX.client.core.ProxyFactory;
 import com.github.liuche51.easyTaskX.client.core.Slice;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
-import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.Task;
-import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
-import com.github.liuche51.easyTaskX.client.dto.zk.LeaderData;
-import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
-import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
-import com.github.liuche51.easyTaskX.client.util.StringUtils;
 import com.github.liuche51.easyTaskX.client.util.Util;
-import com.github.liuche51.easyTaskX.client.zk.ZKService;
-import io.netty.channel.ChannelFuture;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -27,9 +18,33 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * 任务执行器
+ * 单例模式
  */
 public class AnnularQueueTask extends TimerTask{
+    /**
+     * 时间分片。
+     */
     private Slice[] slices = new Slice[60];
+    private static AnnularQueueTask singleton = null;
+    public Slice[] getSlices() {
+        return slices;
+    }
+    public static AnnularQueueTask getInstance() {
+        if (singleton == null) {
+            synchronized (AnnularQueueTask.class) {
+                if (singleton == null) {
+                    singleton = new AnnularQueueTask();
+                }
+            }
+        }
+        return singleton;
+    }
+
+    private AnnularQueueTask() {
+        for (int i = 0; i < slices.length; i++) {
+            slices[i] = new Slice();
+        }
+    }
     @Override
     public void run() {
         while (!isExit()) {
@@ -114,9 +129,9 @@ public class AnnularQueueTask extends TimerTask{
      * @param task
      * @throws Exception
      */
-    private void submitAddSlice(Task task) throws Exception {
-        //立即执行的任务，第一次不走时间分片，直接提交执行。一次性和周期性任务都通过EndTimestamp判断是否需要立即执行
-        if (System.currentTimeMillis() + 1000l >= task.getEndTimestamp()) {
+    public void submitAddSlice(Task task) throws Exception {
+        //立即执行的任务，第一次不走时间分片环形队列，直接提交执行。一次性和周期性任务都通过isImmediately判断是否需要立即执行
+        if (task.isImmediately()) {
             log.debug("立即执行类工作任务:{}已提交代理执行", task.getTaskExt().getId());
             Runnable proxy = (Runnable) new ProxyFactory(task).getProxyInstance();
             NodeService.getConfig().getWorkers().submit(proxy);

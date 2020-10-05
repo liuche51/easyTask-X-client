@@ -2,20 +2,14 @@ package com.github.liuche51.easyTaskX.client.zk;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.liuche51.easyTaskX.client.cluster.NodeService;
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
 import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.zk.LeaderData;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.framework.recipes.cache.NodeCacheListener;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.UnknownHostException;
-import java.util.List;
 
 public class ZKService {
     private static Logger log = LoggerFactory.getLogger(ZKService.class);

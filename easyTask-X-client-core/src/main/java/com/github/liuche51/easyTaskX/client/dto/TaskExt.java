@@ -3,6 +3,7 @@ package com.github.liuche51.easyTaskX.client.dto;
 public class TaskExt {
     private String id;
     private String taskClassPath;
+    private String group="Default";//默认分组
     private String source;
     private String broker;
     public String getId() {
@@ -18,6 +19,15 @@ public class TaskExt {
     public void setTaskClassPath(String taskClassPath) {
         this.taskClassPath = taskClassPath;
     }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
     public String getSource() {
         return source;
     }

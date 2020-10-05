@@ -13,7 +13,7 @@ public abstract class BaseHandler {
     static {
         INSTANCES=new HashMap<String,BaseHandler>(){
             {
-                put(NettyInterfaceEnum.SYNC_CLOCK_DIFFER,new SyncClockDifferHandler());
+                put(NettyInterfaceEnum.CLIENT_SUBMIT_TASK,null);
             }
         };
     }

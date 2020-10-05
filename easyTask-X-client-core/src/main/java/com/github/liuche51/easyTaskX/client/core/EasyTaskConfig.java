@@ -32,21 +32,21 @@ public class EasyTaskConfig {
      */
     private int timeOut = 30;
     /**
-     * ZK节点信息失效超时时间。默认超过60s就判断为失效节点，任何其他节点可删除掉
+     * 节点对leader的心跳频率。默认5s一次
      */
-    private int loseTimeOut = 60;
-    /**
-     * ZK节点信息死亡超时时间。默认超过30s就判断为Leader失效节点，其Follow节点可进入选举新Leader
-     */
-    private int deadTimeOut = 30;
-    /**
-     * 节点对zk的心跳频率。默认2s一次
-     */
-    private int heartBeat = 2;
+    private int heartBeat = 5;
     /**
      * 集群节点之间通信失败重试次数。默认2次
      */
     private int tryCount = 2;
+    /**
+     * 节点分组。不同的服务分组应该不同的。否则可能导致服务执行任务。默认Default
+     */
+    private String group="Default";
+    /**
+     * Folow节点从leader更新注册表信息间隔时间。单位秒。
+     */
+    private int followUpdateRegeditTime=300;
     /**
      * 集群公用程池
      */
@@ -79,7 +79,7 @@ public class EasyTaskConfig {
         this.nettyPoolSize = nettyPoolSize;
     }
 
-    public String getAddress() throws UnknownHostException {
+    public String getAddress() throws Exception {
         StringBuffer buffer = new StringBuffer(Util.getLocalIP());
         buffer.append(":").append(getServerPort());
         return buffer.toString();
@@ -109,20 +109,12 @@ public class EasyTaskConfig {
         this.timeOut = timeOut;
     }
 
-    public int getLoseTimeOut() {
-        return loseTimeOut;
+    public int getFollowUpdateRegeditTime() {
+        return followUpdateRegeditTime;
     }
 
-    public void setLoseTimeOut(int loseTimeOut) {
-        this.loseTimeOut = loseTimeOut;
-    }
-
-    public int getDeadTimeOut() {
-        return deadTimeOut;
-    }
-
-    public void setDeadTimeOut(int deadTimeOut) {
-        this.deadTimeOut = deadTimeOut;
+    public void setFollowUpdateRegeditTime(int followUpdateRegeditTime) {
+        this.followUpdateRegeditTime = followUpdateRegeditTime;
     }
 
     public int getHeartBeat() {
@@ -139,6 +131,14 @@ public class EasyTaskConfig {
 
     public void setTryCount(int tryCount) {
         this.tryCount = tryCount;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     public ExecutorService getClusterPool() {

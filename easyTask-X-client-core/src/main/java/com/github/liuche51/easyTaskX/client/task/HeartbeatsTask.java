@@ -1,7 +1,6 @@
 package com.github.liuche51.easyTaskX.client.task;
 
 import com.github.liuche51.easyTaskX.client.cluster.NodeService;
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
 import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.zk.LeaderData;
@@ -37,7 +36,7 @@ public class HeartbeatsTask extends TimerTask {
                 log.error("", e);
             }
             try {
-                Thread.sleep(AnnularQueue.getInstance().getConfig().getHeartBeat());
+                Thread.sleep(NodeService.getConfig().getHeartBeat());
             } catch (InterruptedException e) {
                 log.error("", e);
             }

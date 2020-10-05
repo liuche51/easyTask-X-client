@@ -1,6 +1,6 @@
 package com.github.liuche51.easyTaskX.client.netty.client;
 
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
+import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,7 @@ public class NettyConnectionFactory {
         String key = conn.getHost() + ":" + conn.getPort();
         ConcurrentLinkedQueue<NettyClient> pool = pools.get(key);
         //连接没有被关闭的才可以放入池中
-        if (conn.getClientChannel()!=null&&conn.getClientChannel().isActive()&&pool.size() < AnnularQueue.getInstance().getConfig().getNettyPoolSize()) {
+        if (conn.getClientChannel()!=null&&conn.getClientChannel().isActive()&&pool.size() < NodeService.getConfig().getNettyPoolSize()) {
             pool.add(conn);
         } else {
             conn.close();

@@ -1,7 +1,7 @@
 package com.github.liuche51.easyTaskX.client.dto;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
+import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.core.TimeUnit;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
@@ -17,6 +17,7 @@ public class Task {
     private TaskType taskType = TaskType.ONECE;
     private long period;
     private TimeUnit unit;
+    private boolean immediately=false;//是否立即执行
     private TaskExt taskExt = new TaskExt();
     private Map<String, String> param;
 
@@ -53,6 +54,14 @@ public class Task {
 
     public void setUnit(TimeUnit unit) {
         this.unit = unit;
+    }
+
+    public boolean isImmediately() {
+        return immediately;
+    }
+
+    public void setImmediately(boolean immediately) {
+        this.immediately = immediately;
     }
 
     public Map<String, String> getParam() {
@@ -112,7 +121,7 @@ public class Task {
         ScheduleDto.Schedule.Builder builder=ScheduleDto.Schedule.newBuilder();
         builder.setId(this.getTaskExt().getId()).setClassPath(this.getTaskExt().getTaskClassPath()).setExecuteTime(this.getEndTimestamp())
                 .setTaskType(this.getTaskType().name()).setPeriod(this.period).setUnit(this.getUnit().name())
-                .setParam(JSONObject.toJSONString(this.getParam())).setSource(AnnularQueue.getInstance().getConfig().getAddress())
+                .setParam(JSONObject.toJSONString(this.getParam())).setSource(NodeService.getConfig().getAddress())
                 .setTransactionId("");
         return builder.build();
     }

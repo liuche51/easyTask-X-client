@@ -1,6 +1,6 @@
 package com.github.liuche51.easyTaskX.client.dto;
 
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
+import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 
 import java.net.UnknownHostException;
@@ -130,11 +130,11 @@ public class Schedule {
      * 转换为protocol buffer对象
      * @return
      */
-    public ScheduleDto.Schedule toScheduleDto() throws UnknownHostException {
+    public ScheduleDto.Schedule toScheduleDto() throws Exception {
         ScheduleDto.Schedule.Builder builder=ScheduleDto.Schedule.newBuilder();
         builder.setId(this.id).setClassPath(this.classPath).setExecuteTime(this.executeTime)
                 .setTaskType(this.taskType).setPeriod(this.period).setUnit(this.unit)
-                .setParam(this.param).setSource(AnnularQueue.getInstance().getConfig().getAddress())
+                .setParam(this.param).setSource(NodeService.getConfig().getAddress())
                 .setTransactionId(this.transactionId);
         return builder.build();
     }

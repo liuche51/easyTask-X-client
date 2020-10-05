@@ -1,24 +1,17 @@
 package com.github.liuche51.easyTaskX.client.cluster;
 
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
 import com.github.liuche51.easyTaskX.client.core.EasyTaskConfig;
-import com.github.liuche51.easyTaskX.client.dto.BaseNode;
+import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.dto.Node;
 import com.github.liuche51.easyTaskX.client.dto.Task;
-import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
-import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
-import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.server.NettyServer;
 import com.github.liuche51.easyTaskX.client.task.*;
 import com.github.liuche51.easyTaskX.client.task.TimerTask;
-import com.github.liuche51.easyTaskX.client.util.DateUtils;
 import com.github.liuche51.easyTaskX.client.util.Util;
-import com.github.liuche51.easyTaskX.client.zk.ZKService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class NodeService {
     private static Logger log = LoggerFactory.getLogger(NodeService.class);
@@ -39,6 +32,7 @@ public class NodeService {
      * 系统没有重启只是初始化了集群initCurrentNode()。此时需要停止之前的定时任务，重新启动新的
      */
     public static List<TimerTask> timerTasks = new LinkedList<TimerTask>();
+
     public static EasyTaskConfig getConfig() {
         return config;
     }
@@ -46,9 +40,11 @@ public class NodeService {
     public static void setConfig(EasyTaskConfig config) {
         NodeService.config = config;
     }
+
     /**
      * 启动节点。
      * 线程互斥
+     *
      * @param config
      * @throws Exception
      */
@@ -62,73 +58,55 @@ public class NodeService {
         NodeService.config = config;
         NettyServer.getInstance().run();//启动组件的Netty服务端口
         initCurrentNode();//初始化本节点的集群服务
-        isStarted=true;
+        isStarted = true;
     }
 
     public static void initCurrentNode() throws Exception {
-        CURRENTNODE = new Node(Util.getLocalIP(), AnnularQueue.getInstance().getConfig().getServerPort());
+        CURRENTNODE = new Node(Util.getLocalIP(), NodeService.getConfig().getServerPort());
         timerTasks.add(startAnnularQueueTask());
         timerTasks.add(startHeartBeat());
     }
 
     /**
-     * 提交新任务到集群
-     * 如果有多个Broker，则采用随机算法挑选一个
+     * 客户端提交任务。允许线程等待，直到easyTask组件启动完成
      *
      * @param task
+     * @return
      * @throws Exception
      */
-    public static void submitTask(Task task) throws Exception {
-        ScheduleDto.Schedule schedule = task.toScheduleDto();
-        ConcurrentHashMap<String, BaseNode> brokers = CURRENTNODE.getBrokers();
-        Iterator<Map.Entry<String, BaseNode>> items = brokers.entrySet().iterator();
-        BaseNode selectedNode = null;
-        if (brokers.size() > 1) {
-            Random random = new Random();
-            int index = random.nextInt(brokers.size());//随机生成的随机数范围就变成[0,size)。
-            int flag = 0;
-            while (items.hasNext()) {
-                if (index == flag) {
-                    selectedNode = items.next().getValue();
-                    break;
-                }
-            }
-        } else
-            selectedNode = items.next().getValue();
-        task.getTaskExt().setBroker(selectedNode.getAddress());//将任务所属服务端节点标记一下
-        Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-        builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.CLIENT_SUBMIT_TASK).setSource(AnnularQueue.getInstance().getConfig().getAddress())
-                .setBodyBytes(schedule.toByteString());
-        boolean ret = NodeUtil.sendSyncMsgWithCount(selectedNode.getClientWithCount(1), builder.build(), 1);
-        if (!ret) {
-            throw new Exception("sendSyncMsgWithCount()->exception! ");
+    public String submitAllowWait(Task task) throws Exception {
+        while (!isStarted) {
+            Thread.sleep(1000l);//如果未启动则休眠1s
         }
+        return this.submit(task);
     }
 
     /**
-     * 删除任务。
-     * 已执行完毕的任务，系统自动删除用
+     * 客户端提交任务。如果easyTask组件未启动，则抛出异常
      *
-     * @param taskId
-     * @param brokerAddress
+     * @param task
+     * @return
      * @throws Exception
      */
-    public static boolean deleteTask(String taskId, String brokerAddress) {
-        try {
-            BaseNode broker = CURRENTNODE.getBrokers().get(brokerAddress);
-            if (broker != null) {
-                Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-                builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.CLIENT_DELETE_TASK).setSource(AnnularQueue.getInstance().getConfig().getAddress())
-                        .setBody(taskId);
-                boolean ret = NodeUtil.sendSyncMsgWithCount(broker.getClientWithCount(1), builder.build(), 1);
-                return ret;
-            }
-        } catch (Exception e) {
-            log.error("deleteTask()-> exception!", e);
+    public String submit(Task task) throws Exception {
+        if (!isStarted) throw new Exception("the easyTask-X has not started,please wait a moment!");
+        task.getTaskExt().setId(Util.generateUniqueId());
+        String path = task.getClass().getName();
+        task.getTaskExt().setTaskClassPath(path);
+        task.getTaskExt().setGroup(NodeService.getConfig().getGroup());
+        //周期任务，且为非立即执行的，尽可能早点计算其下一个执行时间。免得因为持久化导致执行时间延迟
+        if (task.getTaskType().equals(TaskType.PERIOD) && !task.isImmediately()) {
+            task.setEndTimestamp(Task.getNextExcuteTimeStamp(task.getPeriod(), task.getUnit()));
         }
-        return false;
+        //一次性立即执行的任务不需要持久化服务
+        if (!(task.getTaskType().equals(TaskType.ONECE) && task.isImmediately())){
+            //以下两行代码不要调换顺序，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
+            //为保持数据一致性。应该先提交任务，成功后再执行任务。否则可能出现任务已经执行，持久化却失败了。导致异常情况
+            BrokerService.submitTask(task);
+        }
+        AnnularQueueTask.getInstance().submitAddSlice(task);
+        return task.getTaskExt().getId();
     }
-
     /**
      * 节点对leader的心跳。
      */
@@ -142,7 +120,7 @@ public class NodeService {
      * 启动任务执行器
      */
     public static TimerTask startAnnularQueueTask() {
-        AnnularQueueTask task = new AnnularQueueTask();
+        AnnularQueueTask task =AnnularQueueTask.getInstance();
         task.start();
         return task;
     }

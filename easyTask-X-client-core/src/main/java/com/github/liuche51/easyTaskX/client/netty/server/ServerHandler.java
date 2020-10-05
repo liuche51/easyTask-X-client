@@ -1,6 +1,6 @@
 package com.github.liuche51.easyTaskX.client.netty.server;
 
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
+import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.ResultDto;
 import com.github.liuche51.easyTaskX.client.netty.server.handler.BaseHandler;
@@ -34,7 +34,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
         ResultDto.Result.Builder result = ResultDto.Result.newBuilder();
         result.setResult(StringConstant.TRUE);
         try {
-            builder.setSource(AnnularQueue.getInstance().getConfig().getAddress());
+            builder.setSource(NodeService.getConfig().getAddress());
             Dto.Frame frame = (Dto.Frame) msg;
             builder.setInterfaceName(frame.getInterfaceName());
             builder.setIdentity(frame.getIdentity());

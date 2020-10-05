@@ -1,5 +1,5 @@
 
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
+import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import com.github.liuche51.easyTaskX.client.core.EasyTaskConfig;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.core.TimeUnit;
@@ -22,11 +22,10 @@ public class ClusterTest {
 
     @Test
     public void startNode1() {
-        AnnularQueue annularQueue = AnnularQueue.getInstance();
         EasyTaskConfig config =new EasyTaskConfig();
         try {
             config.setServerPort(2031);
-            initData(annularQueue,config,"Node1");
+            initData(config,"Node1");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -34,11 +33,10 @@ public class ClusterTest {
 
     @Test
     public void startNode2() {
-        AnnularQueue annularQueue = AnnularQueue.getInstance();
         EasyTaskConfig config = new EasyTaskConfig();
         try {
             config.setServerPort(2032);
-            initData(annularQueue,config,"Node2");
+            initData(config,"Node2");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -46,11 +44,10 @@ public class ClusterTest {
 
     @Test
     public void startNode3() {
-        AnnularQueue annularQueue = AnnularQueue.getInstance();
         EasyTaskConfig config = new EasyTaskConfig();
         try {
             config.setServerPort(2033);
-            initData(annularQueue,config,"Node3");
+            initData(config,"Node3");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,17 +55,16 @@ public class ClusterTest {
 
     @Test
     public void startNode4() {
-        AnnularQueue annularQueue = AnnularQueue.getInstance();
         EasyTaskConfig config =new EasyTaskConfig();
         try {
             config.setServerPort(2034);
-            initData(annularQueue,config,"Node4");
+            initData(config,"Node4");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void initData(AnnularQueue annularQueue, EasyTaskConfig config, String name) throws Exception {
+    private void initData( EasyTaskConfig config, String name) throws Exception {
         config.setZkAddress("127.0.0.1:2181");
         //config.setDeleteZKTimeOunt(500);
         //config.setSelectLeaderZKNodeTimeOunt(500);
@@ -76,7 +72,7 @@ public class ClusterTest {
                 new LinkedBlockingQueue<Runnable>()));
         config.setWorkers(new ThreadPoolExecutor(12, 12, 10000, java.util.concurrent.TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>()));
-        annularQueue.start(config);
+        NodeService.start(config);
         CusTask1 task1 = new CusTask1();
         task1.setEndTimestamp(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());//10秒后执行
         Map<String, String> param = new HashMap<String, String>() {

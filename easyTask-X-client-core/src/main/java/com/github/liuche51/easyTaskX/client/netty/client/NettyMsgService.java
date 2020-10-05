@@ -1,7 +1,7 @@
 package com.github.liuche51.easyTaskX.client.netty.client;
 
 
-import com.github.liuche51.easyTaskX.client.core.AnnularQueue;
+import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import com.github.liuche51.easyTaskX.client.dto.ByteStringPack;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.ResultDto;
@@ -30,7 +30,7 @@ public class NettyMsgService {
         ChannelPromise promise = conn.getClientChannel().newPromise();
         conn.getHandler().setPromise(promise);
         conn.getClientChannel().writeAndFlush(msg);
-        promise.await(AnnularQueue.getInstance().getConfig().getTimeOut(), TimeUnit.SECONDS);//等待固定的时间，超时就认为失败，需要重发
+        promise.await(NodeService.getConfig().getTimeOut(), TimeUnit.SECONDS);//等待固定的时间，超时就认为失败，需要重发
         try {
             Dto.Frame frame = (Dto.Frame) conn.getHandler().getResponse();
             return frame;
