@@ -13,4 +13,8 @@ public class NettyInterfaceEnum {
      * Follow对Leader的心跳接口
      */
     public static final String Heartbeat="Heartbeat";
+    /**
+     * Client定时任务获取Brokers列表更新
+    */
+    public static final String ClientUpdateBrokers="ClientUpdateBrokers";
 }

@@ -64,7 +64,8 @@ public class NodeService {
     public static void initCurrentNode() throws Exception {
         CURRENTNODE = new Node(Util.getLocalIP(), NodeService.getConfig().getServerPort());
         timerTasks.add(startAnnularQueueTask());
-        timerTasks.add(startHeartBeat());
+        timerTasks.add(startHeartBeatTask());
+        timerTasks.add(startUpdateBrokersTask());
     }
 
     /**
@@ -110,7 +111,7 @@ public class NodeService {
     /**
      * 节点对leader的心跳。
      */
-    public static TimerTask startHeartBeat() {
+    public static TimerTask startHeartBeatTask() {
         HeartbeatsTask task = new HeartbeatsTask();
         task.start();
         return task;
@@ -121,6 +122,14 @@ public class NodeService {
      */
     public static TimerTask startAnnularQueueTask() {
         AnnularQueueTask task =AnnularQueueTask.getInstance();
+        task.start();
+        return task;
+    }
+    /**
+     * 节点对leader的心跳。
+     */
+    public static TimerTask startUpdateBrokersTask() {
+        UpdateBrokersTask task = new UpdateBrokersTask();
         task.start();
         return task;
     }

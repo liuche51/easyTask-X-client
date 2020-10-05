@@ -48,6 +48,10 @@ public class EasyTaskConfig {
      */
     private int followUpdateRegeditTime=300;
     /**
+     * 从leader更新Brokers列表间隔时间。单位秒。
+     */
+    private int updateBrokersTime=60*60;
+    /**
      * 集群公用程池
      */
     private ExecutorService clusterPool = null;
@@ -115,6 +119,14 @@ public class EasyTaskConfig {
 
     public void setFollowUpdateRegeditTime(int followUpdateRegeditTime) {
         this.followUpdateRegeditTime = followUpdateRegeditTime;
+    }
+
+    public int getUpdateBrokersTime() {
+        return updateBrokersTime;
+    }
+
+    public void setUpdateBrokersTime(int updateBrokersTime) {
+        this.updateBrokersTime = updateBrokersTime;
     }
 
     public int getHeartBeat() {
