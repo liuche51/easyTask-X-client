@@ -5,7 +5,7 @@ public class TaskExt {
     private String taskClassPath;
     private String group="Default";//默认分组
     private String source;
-    private String broker;
+    private String broker;//任务所属
     public String getId() {
         return id;
     }

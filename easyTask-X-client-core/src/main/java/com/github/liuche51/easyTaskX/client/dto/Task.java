@@ -122,7 +122,7 @@ public class Task {
         builder.setId(this.getTaskExt().getId()).setClassPath(this.getTaskExt().getTaskClassPath()).setExecuteTime(this.getEndTimestamp())
                 .setTaskType(this.getTaskType().name()).setPeriod(this.period).setUnit(this.getUnit().name())
                 .setParam(JSONObject.toJSONString(this.getParam())).setSource(NodeService.getConfig().getAddress())
-                .setTransactionId("");
+                .setExecuter(this.getTaskExt().getBroker());
         return builder.build();
     }
 }
