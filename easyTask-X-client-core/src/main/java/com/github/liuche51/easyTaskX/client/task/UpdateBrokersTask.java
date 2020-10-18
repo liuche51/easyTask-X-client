@@ -26,7 +26,7 @@ public class UpdateBrokersTask extends TimerTask {
         while (!isExit()) {
             try {
                Dto.Frame.Builder builder= Dto.Frame.newBuilder();
-                builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientUpdateBrokers).setSource(NodeService.getConfig().getAddress());
+                builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientRequestLeaderSendBrokers).setSource(NodeService.getConfig().getAddress());
                 ByteStringPack pack=new ByteStringPack();
                 boolean ret=NettyMsgService.sendSyncMsgWithCount(builder,NodeService.CURRENTNODE.getClusterLeader().getClient(),1,0,pack);
                 if(ret){
@@ -35,7 +35,7 @@ public class UpdateBrokersTask extends TimerTask {
                    NodeService.CURRENTNODE.getBrokers().clear();
                    if(brokers!=null){
                        brokers.forEach(x->{
-                           NodeService.CURRENTNODE.getBrokers().put(x,null);
+                           NodeService.CURRENTNODE.getBrokers().add(new BaseNode(x));
                        });
                    }
                 }

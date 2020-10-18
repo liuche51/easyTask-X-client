@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BrokerService {
     private static final Logger log = LoggerFactory.getLogger(BrokerService.class);
@@ -28,29 +29,24 @@ public class BrokerService {
      */
     public static void submitTask(Task task) throws Exception {
         ScheduleDto.Schedule schedule = task.toScheduleDto();
-        ConcurrentHashMap<String, BaseNode> brokers = NodeService.CURRENTNODE.getBrokers();
-        Iterator<Map.Entry<String, BaseNode>> items = brokers.entrySet().iterator();
+        CopyOnWriteArrayList<BaseNode> brokers = NodeService.CURRENTNODE.getBrokers();
         BaseNode selectedNode = null;
-        if (brokers.size() > 1) {
+        if(brokers==null||brokers.size()==0)
+            throw new Exception("brokers==null||brokers.size()==0");
+        else if (brokers.size() > 1) {
             Random random = new Random();
             int index = random.nextInt(brokers.size());//随机生成的随机数范围就变成[0,size)。
-            int flag = 0;
-            while (items.hasNext()) {
-                if (index == flag) {
-                    selectedNode = items.next().getValue();
-                    break;
-                }
-            }
+            selectedNode=brokers.get(index);
         } else
-            selectedNode = items.next().getValue();
+            selectedNode = brokers.get(0);
         task.getTaskExt().setBroker(selectedNode.getAddress());//将任务所属服务端节点标记一下
         Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-        builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.CLIENT_SUBMIT_TASK).setSource(NodeService.getConfig().getAddress())
+        builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientNotifyBrokerSubmitTask).setSource(NodeService.getConfig().getAddress())
                 .setBodyBytes(schedule.toByteString());
         NettyClient client = selectedNode.getClientWithCount(1);
         boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, client, 1, 0, null);
         if (!ret) {
-            throw new Exception("sendSyncMsgWithCount()->exception! ");
+            throw new Exception("ret=false");
         }
     }
 
@@ -65,7 +61,7 @@ public class BrokerService {
     public static boolean deleteTask(String taskId, String brokerAddress) {
         try {
             Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-            builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.CLIENT_DELETE_TASK).setSource(NodeService.getConfig().getAddress())
+            builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientNotifyBrokerDeleteTask).setSource(NodeService.getConfig().getAddress())
                     .setBody(taskId);
             NettyClient client = new BaseNode(brokerAddress).getClientWithCount(1);
             boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, client, 1, 0, null);

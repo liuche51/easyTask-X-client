@@ -1,6 +1,7 @@
 package com.github.liuche51.easyTaskX.client.dto;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 节点对象
@@ -9,7 +10,7 @@ public class Node extends BaseNode {
     /**
      * 集群所有可用的brokers
      */
-    private ConcurrentHashMap<String, BaseNode> brokers = new ConcurrentHashMap<String, BaseNode>();
+    private CopyOnWriteArrayList<BaseNode> brokers = new CopyOnWriteArrayList<BaseNode>();
     /**
      * leader
      */
@@ -25,11 +26,11 @@ public class Node extends BaseNode {
         super(address);
     }
 
-    public ConcurrentHashMap<String, BaseNode> getBrokers() {
+    public CopyOnWriteArrayList<BaseNode> getBrokers() {
         return brokers;
     }
 
-    public void setBrokers(ConcurrentHashMap<String, BaseNode> brokers) {
+    public void setBrokers(CopyOnWriteArrayList<BaseNode> brokers) {
         this.brokers = brokers;
     }
 
