@@ -10,9 +10,9 @@ import com.google.protobuf.ByteString;
 import java.util.Iterator;
 
 /**
- *  Clinet响应：leader通知clinets更新Brokers列表变动信息
+ *  Clinet响应：通知Clinets。Broker发生变更。
  */
-public class LeaderNotifyClientsUpdateBrokerChangeHandler extends BaseHandler {
+public class LeaderNotifyClientBrokerChangedHandler extends BaseHandler {
     @Override
     public ByteString process(Dto.Frame frame) throws Exception {
         String body = frame.getBody();
