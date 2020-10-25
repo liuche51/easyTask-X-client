@@ -5,6 +5,9 @@ import com.github.liuche51.easyTaskX.client.dto.Task;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Slice {
+    /**
+     * 任务容器。跳表
+     */
     private ConcurrentSkipListMap<String, Task> list=new ConcurrentSkipListMap<String, Task>();;
 
     public ConcurrentSkipListMap<String, Task> getList() {

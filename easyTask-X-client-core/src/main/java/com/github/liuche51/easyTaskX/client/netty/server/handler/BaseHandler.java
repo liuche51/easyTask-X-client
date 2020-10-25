@@ -14,7 +14,7 @@ public abstract class BaseHandler {
     static {
         INSTANCES=new HashMap<String,BaseHandler>(){
             {
-                put(NettyInterfaceEnum.LeaderNotifyClientUpdateBrokerChange,new LeaderNotifyClientsUpdateBrokerChangeHandler());
+                put(NettyInterfaceEnum.LeaderNotifyClientBrokerChanged,new LeaderNotifyClientsUpdateBrokerChangeHandler());
             }
         };
     }

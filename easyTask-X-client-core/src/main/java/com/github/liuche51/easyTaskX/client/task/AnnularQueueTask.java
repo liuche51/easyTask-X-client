@@ -155,4 +155,23 @@ public class AnnularQueueTask extends TimerTask{
             s.getList().clear();
         }
     }
+
+    /**
+     * 变更任务的所属Broker。
+     * 原Broker宕机时
+     * @param newBroker
+     * @param oldBroker
+     */
+    public void changeBroker(String newBroker,String oldBroker){
+        for(int i=0;i<this.slices.length;i++){
+            Slice s=this.slices[i];
+            Iterator<Map.Entry<String,Task>> items=s.getList().entrySet().iterator();
+            while (items.hasNext()){
+                Map.Entry<String,Task> item=items.next();
+                Task task=item.getValue();
+                if(oldBroker.equals(task.getTaskExt().getBroker()))
+                    task.getTaskExt().setBroker(newBroker);
+            }
+        }
+    }
 }

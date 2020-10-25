@@ -18,7 +18,7 @@ public class NettyInterfaceEnum {
     */
     public static final String ClientRequestLeaderSendBrokers="ClientRequestLeaderSendBrokers";
     /**
-     * leader通知clients更新Broker列表变动信息
+     * leader通知Clinets。Broker发生变更。
      */
-    public static final String LeaderNotifyClientUpdateBrokerChange="LeaderNotifyClientUpdateRegedit";
+    public static final String LeaderNotifyClientBrokerChanged="LeaderNotifyClientBrokerChanged";
 }
