@@ -1,8 +1,7 @@
 package com.github.liuche51.easyTaskX.client.core;
 
 import com.github.liuche51.easyTaskX.client.cluster.BrokerService;
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
-import com.github.liuche51.easyTaskX.client.dto.Task;
+import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +11,8 @@ import java.lang.reflect.Proxy;
 
 public class ProxyFactory {
     private static Logger log = LoggerFactory.getLogger(ProxyFactory.class);
-    private Task target;
-    public ProxyFactory(Task target) {
+    private InnerTask target;
+    public ProxyFactory(InnerTask target) {
         this.target = target;
     }
 
@@ -24,7 +23,7 @@ public class ProxyFactory {
                 new InvocationHandler() {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        String id=target.getTaskExt().getId();
+                        String id=target.getId();
                         log.debug("任务:{} 代理执行开始", id);
                         try {
                             return method.invoke(target, args);
@@ -34,7 +33,7 @@ public class ProxyFactory {
                         }finally {
                             log.debug("任务:{} 代理执行结束", id);
                             if (target.getTaskType().equals(TaskType.ONECE)){
-                                boolean ret = BrokerService.deleteTask(id,target.getTaskExt().getBroker());
+                                boolean ret = BrokerService.deleteTask(id,target.getBroker());
                                 if (ret)
                                 {
                                     log.debug("任务:{} 执行完成，已从持久化记录中删除", id);

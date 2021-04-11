@@ -74,7 +74,7 @@ public class ClusterTest {
                 new LinkedBlockingQueue<Runnable>()));
         NodeService.start(config);
         CusTask1 task1 = new CusTask1();
-        task1.setEndTimestamp(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());//10秒后执行
+        task1.setExecuteTime(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());//10秒后执行
         Map<String, String> param = new HashMap<String, String>() {
             {
                 put("name", name);
@@ -86,7 +86,7 @@ public class ClusterTest {
         task1.setParam(param);
         CusTask1 task2 = new CusTask1();
         task2.setPeriod(10);
-        task2.setEndTimestamp(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());
+        task2.setExecuteTime(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());
         task2.setTaskType(TaskType.PERIOD);
         task2.setUnit(TimeUnit.SECONDS);
         Map<String, String> param2 = new HashMap<String, String>() {

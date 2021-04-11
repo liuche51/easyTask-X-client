@@ -9,25 +9,26 @@ import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
+/**
+ * 客户端使用Task
+ */
 public class Task {
     /**
      * 任务截止运行时间
      */
-    private long endTimestamp;
+    private long executeTime;
     private TaskType taskType = TaskType.ONECE;
     private long period;
     private TimeUnit unit;
-    private boolean immediately=false;//是否立即执行
-    private TaskExt taskExt = new TaskExt();
+    private boolean immediately = false;//是否立即执行
     private Map<String, String> param;
 
-
-    public long getEndTimestamp() {
-        return endTimestamp;
+    public long getExecuteTime() {
+        return executeTime;
     }
 
-    public void setEndTimestamp(long endTimestamp) {
-        this.endTimestamp = endTimestamp;
+    public void setExecuteTime(long executeTime) {
+        this.executeTime = executeTime;
     }
 
     public TaskType getTaskType() {
@@ -68,61 +69,7 @@ public class Task {
         return param;
     }
 
-    public TaskExt getTaskExt() {
-        return taskExt;
-    }
-
     public void setParam(Map<String, String> param) {
         this.param = param;
-    }
-
-    /**
-     * 获取周期性任务下次执行时间。已当前时间为基准计算下次而不是上次截止执行时间
-     *
-     * @param period
-     * @param unit
-     * @return
-     * @throws Exception
-     */
-    public static long getNextExcuteTimeStamp(long period, TimeUnit unit) throws Exception {
-        switch (unit) {
-            case DAYS:
-                return ZonedDateTime.now().plusDays(period).toInstant().toEpochMilli();
-            case HOURS:
-                return ZonedDateTime.now().plusHours(period).toInstant().toEpochMilli();
-            case MINUTES:
-                return ZonedDateTime.now().plusMinutes(period).toInstant().toEpochMilli();
-            case SECONDS:
-                return ZonedDateTime.now().plusSeconds(period).toInstant().toEpochMilli();
-            default:
-                throw new Exception("unSupport TimeUnit type");
-        }
-    }
-
-    private static TimeUnit getTimeUnit(String unit) {
-        switch (unit) {
-            case "DAYS":
-                return TimeUnit.DAYS;
-            case "HOURS":
-                return TimeUnit.HOURS;
-            case "MINUTES":
-                return TimeUnit.MINUTES;
-            case "SECONDS":
-                return TimeUnit.SECONDS;
-            default:
-                return null;
-        }
-    }
-    /**
-     * 转换为protocol buffer对象
-     * @return
-     */
-    public ScheduleDto.Schedule toScheduleDto() throws Exception {
-        ScheduleDto.Schedule.Builder builder=ScheduleDto.Schedule.newBuilder();
-        builder.setId(this.getTaskExt().getId()).setClassPath(this.getTaskExt().getTaskClassPath()).setExecuteTime(this.getEndTimestamp())
-                .setTaskType(this.getTaskType().name()).setPeriod(this.period).setUnit(this.getUnit().name())
-                .setParam(JSONObject.toJSONString(this.getParam())).setSource(NodeService.getConfig().getAddress())
-                .setExecuter(this.getTaskExt().getBroker());
-        return builder.build();
     }
 }

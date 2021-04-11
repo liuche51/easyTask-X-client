@@ -1,12 +1,32 @@
 package com.github.liuche51.easyTaskX.client.core;
 
- public enum TaskType {
+public enum TaskType {
     /**
      * execute once
      */
-    ONECE,
+    ONECE(0),
     /**
      * execute mutilate
      */
-    PERIOD
+    PERIOD(1);
+    private int value;
+
+    private TaskType(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public static TaskType getByValue(String value) {
+        switch (value) {
+            case "0":
+                return TaskType.ONECE;
+            case "1":
+                return TaskType.PERIOD;
+            default:
+                return null;
+        }
+    }
 }

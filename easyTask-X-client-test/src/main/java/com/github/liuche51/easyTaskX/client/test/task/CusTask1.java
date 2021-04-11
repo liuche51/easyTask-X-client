@@ -1,12 +1,12 @@
 package com.github.liuche51.easyTaskX.client.test.task;
 
-import com.github.liuche51.easyTaskX.client.dto.Task;
+import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class CusTask1 extends Task implements Runnable {
+public class CusTask1 extends InnerTask implements Runnable {
     private static Logger log = LoggerFactory.getLogger(CusTask1.class);
 
     @Override

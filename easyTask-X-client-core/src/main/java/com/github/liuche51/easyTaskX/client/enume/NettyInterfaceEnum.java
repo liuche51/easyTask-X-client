@@ -21,4 +21,8 @@ public class NettyInterfaceEnum {
      * leader通知Clinets。Broker发生变更。
      */
     public static final String LeaderNotifyClientBrokerChanged="LeaderNotifyClientBrokerChanged";
+    /**
+     * Broker通知Client接受执行新任务
+     */
+    public static final String BrokerNotifyClientExecuteNewTask="BrokerNotifyClientExecuteNewTask";
 }

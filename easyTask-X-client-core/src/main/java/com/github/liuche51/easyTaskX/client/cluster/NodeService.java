@@ -3,6 +3,7 @@ package com.github.liuche51.easyTaskX.client.cluster;
 import com.github.liuche51.easyTaskX.client.core.EasyTaskConfig;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.dto.Node;
+import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import com.github.liuche51.easyTaskX.client.dto.Task;
 import com.github.liuche51.easyTaskX.client.netty.server.NettyServer;
 import com.github.liuche51.easyTaskX.client.task.*;
@@ -91,22 +92,23 @@ public class NodeService {
      */
     public String submit(Task task) throws Exception {
         if (!isStarted) throw new Exception("the easyTask-X has not started,please wait a moment!");
-        task.getTaskExt().setId(Util.generateUniqueId());
+        InnerTask innerTask=InnerTask.parseFromTask(task);
+        innerTask.setId(Util.generateUniqueId());
         String path = task.getClass().getName();
-        task.getTaskExt().setTaskClassPath(path);
-        task.getTaskExt().setGroup(NodeService.getConfig().getGroup());
+        innerTask.setTaskClassPath(path);
+        innerTask.setGroup(NodeService.getConfig().getGroup());
         //周期任务，且为非立即执行的，尽可能早点计算其下一个执行时间。免得因为持久化导致执行时间延迟
-        if (task.getTaskType().equals(TaskType.PERIOD) && !task.isImmediately()) {
-            task.setEndTimestamp(Task.getNextExcuteTimeStamp(task.getPeriod(), task.getUnit()));
+        if (innerTask.getTaskType().equals(TaskType.PERIOD) && !innerTask.isImmediately()) {
+            innerTask.setExecuteTime(InnerTask.getNextExcuteTimeStamp(innerTask.getPeriod(), innerTask.getUnit()));
         }
         //一次性立即执行的任务不需要持久化服务
-        if (!(task.getTaskType().equals(TaskType.ONECE) && task.isImmediately())){
+        if (!(innerTask.getTaskType().equals(TaskType.ONECE) && innerTask.isImmediately())){
             //以下两行代码不要调换顺序，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
             //为保持数据一致性。应该先提交任务，成功后再执行任务。否则可能出现任务已经执行，持久化却失败了。导致异常情况
-            BrokerService.submitTask(task);
+            BrokerService.submitTask(innerTask);
         }
-        AnnularQueueTask.getInstance().submitAddSlice(task);
-        return task.getTaskExt().getId();
+        AnnularQueueTask.getInstance().submitAddSlice(innerTask);
+        return innerTask.getId();
     }
     /**
      * 节点对leader的心跳。

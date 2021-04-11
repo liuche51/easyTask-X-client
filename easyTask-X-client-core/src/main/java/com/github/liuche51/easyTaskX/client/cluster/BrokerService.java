@@ -1,7 +1,7 @@
 package com.github.liuche51.easyTaskX.client.cluster;
 
 import com.github.liuche51.easyTaskX.client.dto.BaseNode;
-import com.github.liuche51.easyTaskX.client.dto.Task;
+import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
@@ -11,10 +11,7 @@ import com.github.liuche51.easyTaskX.client.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BrokerService {
@@ -27,7 +24,7 @@ public class BrokerService {
      * @param task
      * @throws Exception
      */
-    public static void submitTask(Task task) throws Exception {
+    public static void submitTask(InnerTask task) throws Exception {
         ScheduleDto.Schedule schedule = task.toScheduleDto();
         CopyOnWriteArrayList<BaseNode> brokers = NodeService.CURRENTNODE.getBrokers();
         BaseNode selectedNode = null;
@@ -39,7 +36,7 @@ public class BrokerService {
             selectedNode=brokers.get(index);
         } else
             selectedNode = brokers.get(0);
-        task.getTaskExt().setBroker(selectedNode.getAddress());//将任务所属服务端节点标记一下
+        task.setBroker(selectedNode.getAddress());//将任务所属服务端节点标记一下
         Dto.Frame.Builder builder = Dto.Frame.newBuilder();
         builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientNotifyBrokerSubmitTask).setSource(NodeService.getConfig().getAddress())
                 .setBodyBytes(schedule.toByteString());
