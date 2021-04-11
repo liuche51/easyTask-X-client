@@ -15,7 +15,7 @@ public abstract class BaseHandler {
         INSTANCES=new HashMap<String,BaseHandler>(){
             {
                 put(NettyInterfaceEnum.LeaderNotifyClientBrokerChanged,new LeaderNotifyClientBrokerChangedHandler());
-                put(NettyInterfaceEnum.BrokerNotifyClientExecuteNewTask,new LeaderNotifyClientBrokerChangedHandler());
+                put(NettyInterfaceEnum.BrokerNotifyClientExecuteNewTask,new BrokerNotifyClientExecuteNewTaskHandler());
             }
         };
     }
