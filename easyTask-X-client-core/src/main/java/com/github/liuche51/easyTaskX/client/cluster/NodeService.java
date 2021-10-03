@@ -22,6 +22,7 @@ public class NodeService {
      * 当前集群节点的Node对象
      */
     public static Node CURRENTNODE;
+
     /**
      * 集群一次性任务线程集合。
      * 系统没有重启只是初始化了集群initCurrentNode()。此时也需要立即停止运行的一次性后台任务
