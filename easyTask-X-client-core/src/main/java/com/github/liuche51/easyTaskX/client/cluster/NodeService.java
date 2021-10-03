@@ -62,7 +62,7 @@ public class NodeService {
         isStarted = true;
     }
 
-    public static void initCurrentNode() throws Exception {
+    private static void initCurrentNode() throws Exception {
         CURRENTNODE = new Node(Util.getLocalIP(), NodeService.getConfig().getServerPort());
         timerTasks.add(startAnnularQueueTask());
         timerTasks.add(startHeartBeatTask());
@@ -92,7 +92,7 @@ public class NodeService {
      */
     public String submit(Task task) throws Exception {
         if (!isStarted) throw new Exception("the easyTask-X has not started,please wait a moment!");
-        InnerTask innerTask=InnerTask.parseFromTask(task);
+        InnerTask innerTask = InnerTask.parseFromTask(task);
         innerTask.setId(Util.generateUniqueId());
         String path = task.getClass().getName();
         innerTask.setTaskClassPath(path);
@@ -102,7 +102,7 @@ public class NodeService {
             innerTask.setExecuteTime(InnerTask.getNextExcuteTimeStamp(innerTask.getPeriod(), innerTask.getUnit()));
         }
         //一次性立即执行的任务不需要持久化服务
-        if (!(innerTask.getTaskType().equals(TaskType.ONECE) && innerTask.isImmediately())){
+        if (!(innerTask.getTaskType().equals(TaskType.ONECE) && innerTask.isImmediately())) {
             //以下两行代码不要调换顺序，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
             //为保持数据一致性。应该先提交任务，成功后再执行任务。否则可能出现任务已经执行，持久化却失败了。导致异常情况
             BrokerService.submitTask(innerTask);
@@ -110,6 +110,7 @@ public class NodeService {
         AnnularQueueTask.getInstance().submitAddSlice(innerTask);
         return innerTask.getId();
     }
+
     /**
      * 节点对leader的心跳。
      */
@@ -123,12 +124,13 @@ public class NodeService {
      * 启动任务执行器
      */
     public static TimerTask startAnnularQueueTask() {
-        AnnularQueueTask task =AnnularQueueTask.getInstance();
+        AnnularQueueTask task = AnnularQueueTask.getInstance();
         task.start();
         return task;
     }
+
     /**
-     * 节点对leader的心跳。
+     * 启动更新Broker注册表信息
      */
     public static TimerTask startUpdateBrokersTask() {
         UpdateBrokersTask task = new UpdateBrokersTask();
