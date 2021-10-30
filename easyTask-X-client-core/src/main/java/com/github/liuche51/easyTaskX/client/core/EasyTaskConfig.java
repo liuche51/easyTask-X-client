@@ -40,6 +40,10 @@ public class EasyTaskConfig {
      */
     private int tryCount = 2;
     /**
+     * 等待发送任务队列最大长度。
+     */
+    private int waitSendTaskCount = 10000;
+    /**
      * 节点分组。不同的服务分组应该不同的。否则可能导致服务执行任务。默认Default
      */
     private String group="Default";
@@ -64,6 +68,10 @@ public class EasyTaskConfig {
      * 环形队列工作任务线程池
      */
     private ExecutorService workers = null;
+    /**
+     * 等待发送任务队列线程池
+     */
+    private ExecutorService sendTasks = null;
 
     public String getZkAddress() {
         return zkAddress;
@@ -145,6 +153,14 @@ public class EasyTaskConfig {
         this.tryCount = tryCount;
     }
 
+    public int getWaitSendTaskCount() {
+        return waitSendTaskCount;
+    }
+
+    public void setWaitSendTaskCount(int waitSendTaskCount) {
+        this.waitSendTaskCount = waitSendTaskCount;
+    }
+
     public String getGroup() {
         return group;
     }
@@ -183,6 +199,14 @@ public class EasyTaskConfig {
         this.workers = workers;
     }
 
+    public ExecutorService getSendTasks() {
+        return sendTasks;
+    }
+
+    public void setSendTasks(ExecutorService sendTasks) {
+        this.sendTasks = sendTasks;
+    }
+
     /**
      * 必填项验证
      *
@@ -195,8 +219,10 @@ public class EasyTaskConfig {
         if (config.dispatchs == null)
             config.dispatchs = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         if (config.workers == null)
-            config.workers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+            config.workers = Executors.newCachedThreadPool();
         if (config.clusterPool == null)
-            config.clusterPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+            config.clusterPool = Executors.newCachedThreadPool();
+        if (config.sendTasks == null)
+            config.sendTasks = Executors.newCachedThreadPool();
     }
 }

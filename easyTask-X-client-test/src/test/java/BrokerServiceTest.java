@@ -1,3 +1,5 @@
+import com.github.liuche51.easyTaskX.client.dto.BaseNode;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -6,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BrokerServiceTest {
     static CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<String>();
-
+    public static ConcurrentHashMap<String, BaseNode> TASK_SYNC_BROKER_STATUS = new ConcurrentHashMap<>();
     @org.junit.Test
     public void test() {
         try {
@@ -79,6 +81,18 @@ public class BrokerServiceTest {
             e.printStackTrace();
         }
 
+    }
+    @org.junit.Test
+    public void test2(){
+        BaseNode baseNode=new BaseNode("11111",11);
+        try {
+           synchronized (baseNode){
+               baseNode.wait(5000L);
+           }
+           System.out.println("end");
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
     }
 }
 

@@ -19,7 +19,7 @@ public class LeaderNotifyClientBrokerChangedHandler extends BaseHandler {
         String[] items = body.split(StringConstant.CHAR_SPRIT_STRING);//type+Broker地址+新master地址
         switch (items[0]) {
             case StringConstant.ADD:
-                NodeService.CURRENTNODE.getBrokers().add(new BaseNode(items[1]));
+                NodeService.CURRENT_NODE.getBrokers().add(new BaseNode(items[1]));
                 break;
             case StringConstant.DELETE:
                 //更新现有任务中的broker
@@ -32,11 +32,11 @@ public class LeaderNotifyClientBrokerChangedHandler extends BaseHandler {
                     }
                 });
                 //更新可用broker列表
-                Iterator<BaseNode> temps = NodeService.CURRENTNODE.getBrokers().iterator();
+                Iterator<BaseNode> temps = NodeService.CURRENT_NODE.getBrokers().iterator();
                 while (temps.hasNext()) {
                     BaseNode bn = temps.next();
                     if (bn.getAddress().equals(items[1]))
-                        NodeService.CURRENTNODE.getBrokers().remove(bn);
+                        NodeService.CURRENT_NODE.getBrokers().remove(bn);
                 }
                 break;
             default:break;

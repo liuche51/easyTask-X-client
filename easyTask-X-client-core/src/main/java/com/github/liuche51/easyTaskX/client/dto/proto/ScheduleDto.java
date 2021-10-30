@@ -134,20 +134,50 @@ public final class ScheduleDto {
     com.google.protobuf.ByteString
         getExecuterBytes();
 
-    // optional string transactionId = 10;
+    // optional int32 status = 10;
     /**
-     * <code>optional string transactionId = 10;</code>
+     * <code>optional int32 status = 10;</code>
      */
-    boolean hasTransactionId();
+    boolean hasStatus();
     /**
-     * <code>optional string transactionId = 10;</code>
+     * <code>optional int32 status = 10;</code>
      */
-    String getTransactionId();
+    int getStatus();
+
+    // optional string submit_broker = 11;
     /**
-     * <code>optional string transactionId = 10;</code>
+     * <code>optional string submit_broker = 11;</code>
+     */
+    boolean hasSubmitBroker();
+    /**
+     * <code>optional string submit_broker = 11;</code>
+     */
+    String getSubmitBroker();
+    /**
+     * <code>optional string submit_broker = 11;</code>
      */
     com.google.protobuf.ByteString
-        getTransactionIdBytes();
+        getSubmitBrokerBytes();
+
+    // optional int32 submit_model = 12;
+    /**
+     * <code>optional int32 submit_model = 12;</code>
+     */
+    boolean hasSubmitModel();
+    /**
+     * <code>optional int32 submit_model = 12;</code>
+     */
+    int getSubmitModel();
+
+    // optional int32 submit_timeout = 13;
+    /**
+     * <code>optional int32 submit_timeout = 13;</code>
+     */
+    boolean hasSubmitTimeout();
+    /**
+     * <code>optional int32 submit_timeout = 13;</code>
+     */
+    int getSubmitTimeout();
   }
   /**
    * Protobuf type {@code Schedule}
@@ -245,9 +275,24 @@ public final class ScheduleDto {
               executer_ = input.readBytes();
               break;
             }
-            case 82: {
+            case 80: {
               bitField0_ |= 0x00000200;
-              transactionId_ = input.readBytes();
+              status_ = input.readInt32();
+              break;
+            }
+            case 90: {
+              bitField0_ |= 0x00000400;
+              submitBroker_ = input.readBytes();
+              break;
+            }
+            case 96: {
+              bitField0_ |= 0x00000800;
+              submitModel_ = input.readInt32();
+              break;
+            }
+            case 104: {
+              bitField0_ |= 0x00001000;
+              submitTimeout_ = input.readInt32();
               break;
             }
           }
@@ -623,20 +668,36 @@ public final class ScheduleDto {
       }
     }
 
-    // optional string transactionId = 10;
-    public static final int TRANSACTIONID_FIELD_NUMBER = 10;
-    private Object transactionId_;
+    // optional int32 status = 10;
+    public static final int STATUS_FIELD_NUMBER = 10;
+    private int status_;
     /**
-     * <code>optional string transactionId = 10;</code>
+     * <code>optional int32 status = 10;</code>
      */
-    public boolean hasTransactionId() {
+    public boolean hasStatus() {
       return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
-     * <code>optional string transactionId = 10;</code>
+     * <code>optional int32 status = 10;</code>
      */
-    public String getTransactionId() {
-      Object ref = transactionId_;
+    public int getStatus() {
+      return status_;
+    }
+
+    // optional string submit_broker = 11;
+    public static final int SUBMIT_BROKER_FIELD_NUMBER = 11;
+    private Object submitBroker_;
+    /**
+     * <code>optional string submit_broker = 11;</code>
+     */
+    public boolean hasSubmitBroker() {
+      return ((bitField0_ & 0x00000400) == 0x00000400);
+    }
+    /**
+     * <code>optional string submit_broker = 11;</code>
+     */
+    public String getSubmitBroker() {
+      Object ref = submitBroker_;
       if (ref instanceof String) {
         return (String) ref;
       } else {
@@ -644,26 +705,58 @@ public final class ScheduleDto {
             (com.google.protobuf.ByteString) ref;
         String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
-          transactionId_ = s;
+          submitBroker_ = s;
         }
         return s;
       }
     }
     /**
-     * <code>optional string transactionId = 10;</code>
+     * <code>optional string submit_broker = 11;</code>
      */
     public com.google.protobuf.ByteString
-        getTransactionIdBytes() {
-      Object ref = transactionId_;
+        getSubmitBrokerBytes() {
+      Object ref = submitBroker_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (String) ref);
-        transactionId_ = b;
+        submitBroker_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
+    }
+
+    // optional int32 submit_model = 12;
+    public static final int SUBMIT_MODEL_FIELD_NUMBER = 12;
+    private int submitModel_;
+    /**
+     * <code>optional int32 submit_model = 12;</code>
+     */
+    public boolean hasSubmitModel() {
+      return ((bitField0_ & 0x00000800) == 0x00000800);
+    }
+    /**
+     * <code>optional int32 submit_model = 12;</code>
+     */
+    public int getSubmitModel() {
+      return submitModel_;
+    }
+
+    // optional int32 submit_timeout = 13;
+    public static final int SUBMIT_TIMEOUT_FIELD_NUMBER = 13;
+    private int submitTimeout_;
+    /**
+     * <code>optional int32 submit_timeout = 13;</code>
+     */
+    public boolean hasSubmitTimeout() {
+      return ((bitField0_ & 0x00001000) == 0x00001000);
+    }
+    /**
+     * <code>optional int32 submit_timeout = 13;</code>
+     */
+    public int getSubmitTimeout() {
+      return submitTimeout_;
     }
 
     private void initFields() {
@@ -676,7 +769,10 @@ public final class ScheduleDto {
       param_ = "";
       source_ = "";
       executer_ = "";
-      transactionId_ = "";
+      status_ = 0;
+      submitBroker_ = "";
+      submitModel_ = 0;
+      submitTimeout_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -718,7 +814,16 @@ public final class ScheduleDto {
         output.writeBytes(9, getExecuterBytes());
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeBytes(10, getTransactionIdBytes());
+        output.writeInt32(10, status_);
+      }
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        output.writeBytes(11, getSubmitBrokerBytes());
+      }
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+        output.writeInt32(12, submitModel_);
+      }
+      if (((bitField0_ & 0x00001000) == 0x00001000)) {
+        output.writeInt32(13, submitTimeout_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -767,7 +872,19 @@ public final class ScheduleDto {
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(10, getTransactionIdBytes());
+          .computeInt32Size(10, status_);
+      }
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(11, getSubmitBrokerBytes());
+      }
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(12, submitModel_);
+      }
+      if (((bitField0_ & 0x00001000) == 0x00001000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(13, submitTimeout_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -903,8 +1020,14 @@ public final class ScheduleDto {
         bitField0_ = (bitField0_ & ~0x00000080);
         executer_ = "";
         bitField0_ = (bitField0_ & ~0x00000100);
-        transactionId_ = "";
+        status_ = 0;
         bitField0_ = (bitField0_ & ~0x00000200);
+        submitBroker_ = "";
+        bitField0_ = (bitField0_ & ~0x00000400);
+        submitModel_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000800);
+        submitTimeout_ = 0;
+        bitField0_ = (bitField0_ & ~0x00001000);
         return this;
       }
 
@@ -972,7 +1095,19 @@ public final class ScheduleDto {
         if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
           to_bitField0_ |= 0x00000200;
         }
-        result.transactionId_ = transactionId_;
+        result.status_ = status_;
+        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+          to_bitField0_ |= 0x00000400;
+        }
+        result.submitBroker_ = submitBroker_;
+        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+          to_bitField0_ |= 0x00000800;
+        }
+        result.submitModel_ = submitModel_;
+        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
+          to_bitField0_ |= 0x00001000;
+        }
+        result.submitTimeout_ = submitTimeout_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1030,10 +1165,19 @@ public final class ScheduleDto {
           executer_ = other.executer_;
           onChanged();
         }
-        if (other.hasTransactionId()) {
-          bitField0_ |= 0x00000200;
-          transactionId_ = other.transactionId_;
+        if (other.hasStatus()) {
+          setStatus(other.getStatus());
+        }
+        if (other.hasSubmitBroker()) {
+          bitField0_ |= 0x00000400;
+          submitBroker_ = other.submitBroker_;
           onChanged();
+        }
+        if (other.hasSubmitModel()) {
+          setSubmitModel(other.getSubmitModel());
+        }
+        if (other.hasSubmitTimeout()) {
+          setSubmitTimeout(other.getSubmitTimeout());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1646,76 +1790,175 @@ public final class ScheduleDto {
         return this;
       }
 
-      // optional string transactionId = 10;
-      private Object transactionId_ = "";
+      // optional int32 status = 10;
+      private int status_ ;
       /**
-       * <code>optional string transactionId = 10;</code>
+       * <code>optional int32 status = 10;</code>
        */
-      public boolean hasTransactionId() {
+      public boolean hasStatus() {
         return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
-       * <code>optional string transactionId = 10;</code>
+       * <code>optional int32 status = 10;</code>
        */
-      public String getTransactionId() {
-        Object ref = transactionId_;
+      public int getStatus() {
+        return status_;
+      }
+      /**
+       * <code>optional int32 status = 10;</code>
+       */
+      public Builder setStatus(int value) {
+        bitField0_ |= 0x00000200;
+        status_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 status = 10;</code>
+       */
+      public Builder clearStatus() {
+        bitField0_ = (bitField0_ & ~0x00000200);
+        status_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // optional string submit_broker = 11;
+      private Object submitBroker_ = "";
+      /**
+       * <code>optional string submit_broker = 11;</code>
+       */
+      public boolean hasSubmitBroker() {
+        return ((bitField0_ & 0x00000400) == 0x00000400);
+      }
+      /**
+       * <code>optional string submit_broker = 11;</code>
+       */
+      public String getSubmitBroker() {
+        Object ref = submitBroker_;
         if (!(ref instanceof String)) {
           String s = ((com.google.protobuf.ByteString) ref)
               .toStringUtf8();
-          transactionId_ = s;
+          submitBroker_ = s;
           return s;
         } else {
           return (String) ref;
         }
       }
       /**
-       * <code>optional string transactionId = 10;</code>
+       * <code>optional string submit_broker = 11;</code>
        */
       public com.google.protobuf.ByteString
-          getTransactionIdBytes() {
-        Object ref = transactionId_;
+          getSubmitBrokerBytes() {
+        Object ref = submitBroker_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (String) ref);
-          transactionId_ = b;
+          submitBroker_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string transactionId = 10;</code>
+       * <code>optional string submit_broker = 11;</code>
        */
-      public Builder setTransactionId(
+      public Builder setSubmitBroker(
           String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000200;
-        transactionId_ = value;
+  bitField0_ |= 0x00000400;
+        submitBroker_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string transactionId = 10;</code>
+       * <code>optional string submit_broker = 11;</code>
        */
-      public Builder clearTransactionId() {
-        bitField0_ = (bitField0_ & ~0x00000200);
-        transactionId_ = getDefaultInstance().getTransactionId();
+      public Builder clearSubmitBroker() {
+        bitField0_ = (bitField0_ & ~0x00000400);
+        submitBroker_ = getDefaultInstance().getSubmitBroker();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string transactionId = 10;</code>
+       * <code>optional string submit_broker = 11;</code>
        */
-      public Builder setTransactionIdBytes(
+      public Builder setSubmitBrokerBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000200;
-        transactionId_ = value;
+  bitField0_ |= 0x00000400;
+        submitBroker_ = value;
+        onChanged();
+        return this;
+      }
+
+      // optional int32 submit_model = 12;
+      private int submitModel_ ;
+      /**
+       * <code>optional int32 submit_model = 12;</code>
+       */
+      public boolean hasSubmitModel() {
+        return ((bitField0_ & 0x00000800) == 0x00000800);
+      }
+      /**
+       * <code>optional int32 submit_model = 12;</code>
+       */
+      public int getSubmitModel() {
+        return submitModel_;
+      }
+      /**
+       * <code>optional int32 submit_model = 12;</code>
+       */
+      public Builder setSubmitModel(int value) {
+        bitField0_ |= 0x00000800;
+        submitModel_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 submit_model = 12;</code>
+       */
+      public Builder clearSubmitModel() {
+        bitField0_ = (bitField0_ & ~0x00000800);
+        submitModel_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // optional int32 submit_timeout = 13;
+      private int submitTimeout_ ;
+      /**
+       * <code>optional int32 submit_timeout = 13;</code>
+       */
+      public boolean hasSubmitTimeout() {
+        return ((bitField0_ & 0x00001000) == 0x00001000);
+      }
+      /**
+       * <code>optional int32 submit_timeout = 13;</code>
+       */
+      public int getSubmitTimeout() {
+        return submitTimeout_;
+      }
+      /**
+       * <code>optional int32 submit_timeout = 13;</code>
+       */
+      public Builder setSubmitTimeout(int value) {
+        bitField0_ |= 0x00001000;
+        submitTimeout_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 submit_timeout = 13;</code>
+       */
+      public Builder clearSubmitTimeout() {
+        bitField0_ = (bitField0_ & ~0x00001000);
+        submitTimeout_ = 0;
         onChanged();
         return this;
       }
@@ -2424,13 +2667,15 @@ public final class ScheduleDto {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\021ScheduleDto.proto\"\266\001\n\010Schedule\022\n\n\002id\030\001" +
+      "\n\021ScheduleDto.proto\"\364\001\n\010Schedule\022\n\n\002id\030\001" +
       " \001(\t\022\021\n\tclassPath\030\002 \001(\t\022\023\n\013executeTime\030\003" +
       " \001(\003\022\020\n\010taskType\030\004 \001(\t\022\016\n\006period\030\005 \001(\003\022\014" +
       "\n\004unit\030\006 \001(\t\022\r\n\005param\030\007 \001(\t\022\016\n\006source\030\010 " +
-      "\001(\t\022\020\n\010executer\030\t \001(\t\022\025\n\rtransactionId\030\n" +
-      " \001(\t\",\n\014ScheduleList\022\034\n\tschedules\030\001 \003(\0132" +
-      "\t.ScheduleB\rB\013ScheduleDto"
+      "\001(\t\022\020\n\010executer\030\t \001(\t\022\016\n\006status\030\n \001(\005\022\025\n" +
+      "\rsubmit_broker\030\013 \001(\t\022\024\n\014submit_model\030\014 \001" +
+      "(\005\022\026\n\016submit_timeout\030\r \001(\005\",\n\014ScheduleLi" +
+      "st\022\034\n\tschedules\030\001 \003(\0132\t.ScheduleB\rB\013Sche" +
+      "duleDto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -2442,7 +2687,7 @@ public final class ScheduleDto {
           internal_static_Schedule_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_Schedule_descriptor,
-              new String[] { "Id", "ClassPath", "ExecuteTime", "TaskType", "Period", "Unit", "Param", "Source", "Executer", "TransactionId", });
+              new String[] { "Id", "ClassPath", "ExecuteTime", "TaskType", "Period", "Unit", "Param", "Source", "Executer", "Status", "SubmitBroker", "SubmitModel", "SubmitTimeout", });
           internal_static_ScheduleList_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_ScheduleList_fieldAccessorTable = new

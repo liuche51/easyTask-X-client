@@ -28,14 +28,14 @@ public class UpdateBrokersTask extends TimerTask {
                Dto.Frame.Builder builder= Dto.Frame.newBuilder();
                 builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientRequestLeaderSendBrokers).setSource(NodeService.getConfig().getAddress());
                 ByteStringPack pack=new ByteStringPack();
-                boolean ret=NettyMsgService.sendSyncMsgWithCount(builder,NodeService.CURRENTNODE.getClusterLeader().getClient(),1,0,pack);
+                boolean ret=NettyMsgService.sendSyncMsgWithCount(builder,NodeService.CURRENT_NODE.getClusterLeader().getClient(),1,0,pack);
                 if(ret){
                    StringListDto.StringList list=StringListDto.StringList.parseFrom(pack.getRespbody()) ;
                    List<String> brokers=list.getListList();
-                   NodeService.CURRENTNODE.getBrokers().clear();
+                   NodeService.CURRENT_NODE.getBrokers().clear();
                    if(brokers!=null){
                        brokers.forEach(x->{
-                           NodeService.CURRENTNODE.getBrokers().add(new BaseNode(x));
+                           NodeService.CURRENT_NODE.getBrokers().add(new BaseNode(x));
                        });
                    }
                 }

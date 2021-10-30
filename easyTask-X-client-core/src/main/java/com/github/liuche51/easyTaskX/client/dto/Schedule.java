@@ -19,7 +19,6 @@ public class Schedule {
      */
     private String unit;
     private String param;
-    private String transactionId;
     private String createTime;
     private String modifyTime;
     private String source;
@@ -80,14 +79,6 @@ public class Schedule {
         this.param = param;
     }
 
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
-    }
-
     public String getModifyTime() {
         return modifyTime;
     }
@@ -122,7 +113,6 @@ public class Schedule {
         schedule.unit=dto.getUnit();
         schedule.param=dto.getParam();
         schedule.source=dto.getSource();
-        schedule.transactionId=dto.getTransactionId();
         return schedule;
     }
 
@@ -134,8 +124,7 @@ public class Schedule {
         ScheduleDto.Schedule.Builder builder=ScheduleDto.Schedule.newBuilder();
         builder.setId(this.id).setClassPath(this.classPath).setExecuteTime(this.executeTime)
                 .setTaskType(this.taskType).setPeriod(this.period).setUnit(this.unit)
-                .setParam(this.param).setSource(NodeService.getConfig().getAddress())
-                .setTransactionId(this.transactionId);
+                .setParam(this.param).setSource(NodeService.getConfig().getAddress());
         return builder.build();
     }
 }

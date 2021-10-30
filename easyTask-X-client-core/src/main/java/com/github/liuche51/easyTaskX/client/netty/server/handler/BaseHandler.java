@@ -16,6 +16,7 @@ public abstract class BaseHandler {
             {
                 put(NettyInterfaceEnum.LeaderNotifyClientBrokerChanged,new LeaderNotifyClientBrokerChangedHandler());
                 put(NettyInterfaceEnum.BrokerNotifyClientExecuteNewTask,new BrokerNotifyClientExecuteNewTaskHandler());
+                put(NettyInterfaceEnum.BrokerNotifyClientSubmitTaskStatus,new BrokerNotifyClientSubmitTaskStatusHandler());
             }
         };
     }

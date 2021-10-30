@@ -19,16 +19,16 @@ public class HeartbeatsTask extends TimerTask {
     public void run() {
         while (!isExit()) {
             try {
-                BaseNode leader = NodeService.CURRENTNODE.getClusterLeader();
+                BaseNode leader = NodeService.CURRENT_NODE.getClusterLeader();
                 if (leader == null) {//启动时还没获取leader信息，所以需要去zk获取
                     LeaderData node = ZKService.getLeaderData(false);
                     if (node != null && !StringUtils.isNullOrEmpty(node.getHost())) {//获取leader信息成功
                         leader = new BaseNode(node.getHost(), node.getPort());
-                        NodeService.CURRENTNODE.setClusterLeader(leader);
+                        NodeService.CURRENT_NODE.setClusterLeader(leader);
                     }
                 } else {
                     Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-                    builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.FollowHeartbeatToLeader).setSource(NodeService.CURRENTNODE.getAddress())
+                    builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.FollowHeartbeatToLeader).setSource(NodeService.CURRENT_NODE.getAddress())
                             .setBody("Clinet");//客户端节点
                     ChannelFuture future = NettyMsgService.sendASyncMsg(leader.getClient(), builder.build());//这里使用异步即可。也不需要返回值
                 }

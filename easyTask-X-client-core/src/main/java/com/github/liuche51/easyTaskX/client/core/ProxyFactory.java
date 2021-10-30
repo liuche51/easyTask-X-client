@@ -12,6 +12,7 @@ import java.lang.reflect.Proxy;
 public class ProxyFactory {
     private static Logger log = LoggerFactory.getLogger(ProxyFactory.class);
     private InnerTask target;
+
     public ProxyFactory(InnerTask target) {
         this.target = target;
     }
@@ -23,21 +24,17 @@ public class ProxyFactory {
                 new InvocationHandler() {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        String id=target.getId();
+                        String id = target.getId();
                         log.debug("任务:{} 代理执行开始", id);
                         try {
                             return method.invoke(target, args);
                         } catch (Exception e) {
-                            log.error("target proxy method execute exception！task.id="+id, e);
+                            log.error("target proxy method execute exception！task.id=" + id, e);
                             throw e;
-                        }finally {
+                        } finally {
                             log.debug("任务:{} 代理执行结束", id);
-                            if (target.getTaskType().equals(TaskType.ONECE)){
-                                boolean ret = BrokerService.deleteTask(id,target.getBroker());
-                                if (ret)
-                                {
-                                    log.debug("任务:{} 执行完成，已从持久化记录中删除", id);
-                                }
+                            if (target.getTaskType().equals(TaskType.ONECE)) {
+                                BrokerService.deleteTask(id, target.getBroker());
                             }
                         }
                     }

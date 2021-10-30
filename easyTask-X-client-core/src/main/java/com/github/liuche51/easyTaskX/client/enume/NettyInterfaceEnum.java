@@ -4,7 +4,7 @@ public class NettyInterfaceEnum {
     /**
      * 客户端提交任务
      */
-    public static final String ClientNotifyBrokerSubmitTask="ClientNotifyBrokerSubmitTask";
+    public static final String ClientSubmitTaskToBroker="ClientSubmitTaskToBroker";
     /**
      * 客户端删除任务
      */
@@ -25,4 +25,8 @@ public class NettyInterfaceEnum {
      * Broker通知Client接受执行新任务
      */
     public static final String BrokerNotifyClientExecuteNewTask="BrokerNotifyClientExecuteNewTask";
+    /**
+     * Broker通知Client提交的任务同步状态。
+     */
+    public static final String BrokerNotifyClientSubmitTaskStatus="BrokerNotifyClientSubmitTaskStatus";
 }
