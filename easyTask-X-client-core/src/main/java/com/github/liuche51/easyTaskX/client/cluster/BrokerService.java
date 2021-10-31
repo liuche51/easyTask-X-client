@@ -81,37 +81,19 @@ public class BrokerService {
     }
 
     /**
-     * 变更任务发送队列。
-     * 1、brokers发生变更时，需要重新调用一次
-     * 2、对于需要移除的Broker队列，即便队列中还有待发送的任务，也不考虑转移到其他队列去。而是直接移除，并在同步状态Map中移除，
-     * 让返回任务提交失败即可。暂时不做复杂处理
-     */
-    public static void changWait_Send_Task() {
-        CopyOnWriteArrayList<BaseNode> brokers = NodeService.CURRENT_NODE.getBrokers();
-        brokers.forEach(x -> {
-            if (!WAIT_SEND_TASK.containsKey(x.getAddress())) {//找到新加入的Broker队列
-                WAIT_SEND_TASK.put(x.getAddress(), new LinkedBlockingQueue<ScheduleDto.Schedule>(NodeService.getConfig().getWaitSendTaskCount()));
-                SendTaskTask task = new SendTaskTask(x.getAddress());
-                task.start();
-            } else { // 找到需要移除的Broker队列
-                WAIT_SEND_TASK.remove(x.getAddress());
-            }
-        });
-    }
-
-    /**
      * 往所有broker发送队列里添加任务
      *
      * @param schedule
      */
     public static void addWait_Send_Task(ScheduleDto.Schedule schedule) throws Exception {
-        LinkedBlockingQueue<ScheduleDto.Schedule> broker = WAIT_SEND_TASK.get(schedule.getSubmitBroker());
-        if (broker == null) {
+        LinkedBlockingQueue<ScheduleDto.Schedule> queue = WAIT_SEND_TASK.get(schedule.getSubmitBroker());
+        if (queue == null) {// 防止数据不一致导致未能正确添加Broker的队列
             WAIT_SEND_TASK.put(schedule.getSubmitBroker(), new LinkedBlockingQueue<ScheduleDto.Schedule>(NodeService.getConfig().getWaitSendTaskCount()));
+            queue=WAIT_SEND_TASK.get(schedule.getSubmitBroker());
             SendTaskTask task = new SendTaskTask(schedule.getSubmitBroker());
             task.start();
         }
-        boolean offer = broker.offer(schedule, schedule.getSubmitTimeout(), TimeUnit.SECONDS);
+        boolean offer = queue.offer(schedule, schedule.getSubmitTimeout(), TimeUnit.SECONDS);
         if (offer == false) {
             throw new Exception("Queue WAIT_SEND_TASK is full.Please wait a moment try agin.");
         } else {

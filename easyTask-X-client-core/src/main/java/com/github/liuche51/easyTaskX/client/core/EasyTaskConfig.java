@@ -68,10 +68,6 @@ public class EasyTaskConfig {
      * 环形队列工作任务线程池
      */
     private ExecutorService workers = null;
-    /**
-     * 等待发送任务队列线程池
-     */
-    private ExecutorService sendTasks = null;
 
     public String getZkAddress() {
         return zkAddress;
@@ -199,14 +195,6 @@ public class EasyTaskConfig {
         this.workers = workers;
     }
 
-    public ExecutorService getSendTasks() {
-        return sendTasks;
-    }
-
-    public void setSendTasks(ExecutorService sendTasks) {
-        this.sendTasks = sendTasks;
-    }
-
     /**
      * 必填项验证
      *
@@ -222,7 +210,5 @@ public class EasyTaskConfig {
             config.workers = Executors.newCachedThreadPool();
         if (config.clusterPool == null)
             config.clusterPool = Executors.newCachedThreadPool();
-        if (config.sendTasks == null)
-            config.sendTasks = Executors.newCachedThreadPool();
     }
 }

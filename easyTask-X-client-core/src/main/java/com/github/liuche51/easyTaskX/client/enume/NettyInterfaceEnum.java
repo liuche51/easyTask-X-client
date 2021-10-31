@@ -26,7 +26,7 @@ public class NettyInterfaceEnum {
      */
     public static final String BrokerNotifyClientExecuteNewTask="BrokerNotifyClientExecuteNewTask";
     /**
-     * Broker通知Client提交的任务同步状态。
+     * Broker通知Client提交的任务同步状态结果。
      */
-    public static final String BrokerNotifyClientSubmitTaskStatus="BrokerNotifyClientSubmitTaskStatus";
+    public static final String BrokerNotifyClientSubmitTaskResult="BrokerNotifyClientSubmitTaskResult";
 }

@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Broker通知Client，部分提交的任务状态
  */
-public class BrokerNotifyClientSubmitTaskStatusHandler extends BaseHandler {
+public class BrokerNotifyClientSubmitTaskResultHandler extends BaseHandler {
     @Override
     public ByteString process(Dto.Frame frame) throws Exception {
         StringListDto.StringList list=StringListDto.StringList.parseFrom(frame.getBodyBytes()) ;
