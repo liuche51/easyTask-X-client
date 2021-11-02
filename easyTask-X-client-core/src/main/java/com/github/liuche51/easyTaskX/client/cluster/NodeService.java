@@ -68,6 +68,7 @@ public class NodeService {
         timerTasks.add(startAnnularQueueTask());
         timerTasks.add(startHeartBeatTask());
         timerTasks.add(startUpdateBrokersTask());
+        timerTasks.add(startSenderTask());
     }
 
     /**
@@ -93,6 +94,14 @@ public class NodeService {
      */
     public static TimerTask startUpdateBrokersTask() {
         UpdateBrokersTask task = new UpdateBrokersTask();
+        task.start();
+        return task;
+    }
+    /**
+     * 启动负责将待发送任务队列任务发送到服务端
+     */
+    public static TimerTask startSenderTask() {
+        SenderTask task = new SenderTask();
         task.start();
         return task;
     }

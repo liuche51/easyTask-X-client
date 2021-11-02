@@ -1,0 +1,66 @@
+package com.github.liuche51.easyTaskX.client.task;
+
+import com.github.liuche51.easyTaskX.client.cluster.BrokerService;
+import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.dto.BaseNode;
+import com.github.liuche51.easyTaskX.client.dto.SubmitTaskRequest;
+import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
+import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
+import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
+import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
+import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
+import com.github.liuche51.easyTaskX.client.util.Util;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+
+/**
+ * 负责将待发送任务队列任务发送到服务端
+ * 1、一个实例运行，轮询每个队列
+ * 2、将任务批量打包交给系统线程池推送至服务端。
+ */
+public class SenderTask extends TimerTask {
+
+    @Override
+    public void run() {
+        while (!isExit()) {
+            try {
+                Collection<LinkedBlockingQueue<SubmitTaskRequest>> queues = BrokerService.WAIT_SEND_TASK.values();
+                List<SubmitTaskRequest> batch = new ArrayList<>(10);
+                for (LinkedBlockingQueue<SubmitTaskRequest> queue : queues) { // 轮询每个队列
+                    queue.drainTo(batch, 10);// 批量获取，为空不阻塞。
+                }
+                ScheduleDto.ScheduleList.Builder builder0 = ScheduleDto.ScheduleList.newBuilder();
+                if (batch.size() > 0) {
+                    NodeService.getConfig().getClusterPool().submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                batch.forEach(x -> {
+                                    builder0.addSchedules(x.getSchedule());
+                                });
+                                Dto.Frame.Builder builder = Dto.Frame.newBuilder();
+                                builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientSubmitTaskToBroker).setSource(NodeService.getConfig().getAddress())
+                                        .setBodyBytes(builder0.build().toByteString());
+                                NettyClient client = new BaseNode(batch.get(0).getSubmitBroker()).getClientWithCount(1);
+                                boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, client, 1, 0, null);
+                                if (!ret) {
+                                    log.error("SendTaskTask->sendSyncMsgWithCount exception!");
+                                }
+                            } catch (Exception e) {
+                                log.error("", e);
+                            }
+
+                        }
+                    });
+
+                }
+
+            } catch (Exception e) {
+                log.error("", e);
+            }
+        }
+    }
+}

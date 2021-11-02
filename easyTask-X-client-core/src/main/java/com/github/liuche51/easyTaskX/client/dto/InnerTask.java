@@ -27,18 +27,6 @@ public class InnerTask {
     private String source;
     private String broker;//任务所属
     private Map<String, String> param;
-    /**
-     * 任务提交模式。
-     * 0（高性能模式，任务提交至等待发送服务端队列成功即算成功）
-     * 1（普通模式，任务提交至服务端Master化成功即算成功）
-     * 2（高可靠模式，任务提交至服务端Master和一个Slave成功即算成功）
-     */
-    private int submit_model = 1;
-
-    /**
-     * 任务提交超时时间单。单位秒
-     */
-    private int submit_timeout;
 
     public long getExecuteTime() {
         return executeTime;
@@ -128,22 +116,6 @@ public class InnerTask {
         this.broker = broker;
     }
 
-    public int getSubmit_model() {
-        return submit_model;
-    }
-
-    public void setSubmit_model(int submit_model) {
-        this.submit_model = submit_model;
-    }
-
-    public int getSubmit_timeout() {
-        return submit_timeout;
-    }
-
-    public void setSubmit_timeout(int submit_timeout) {
-        this.submit_timeout = submit_timeout;
-    }
-
     /**
      * 获取周期性任务下次执行时间。已当前时间为基准计算下次而不是上次截止执行时间
      *
@@ -187,13 +159,12 @@ public class InnerTask {
      *
      * @return
      */
-    public ScheduleDto.Schedule toScheduleDto() throws Exception {
+    public ScheduleDto.Schedule toScheduleDto(int submitModel) throws Exception {
         ScheduleDto.Schedule.Builder builder = ScheduleDto.Schedule.newBuilder();
         builder.setId(this.getId()).setClassPath(this.getTaskClassPath()).setExecuteTime(this.getExecuteTime())
                 .setTaskType(this.getTaskType().name()).setPeriod(this.period).setUnit(this.getUnit().name())
                 .setParam(JSONObject.toJSONString(this.getParam())).setSource(NodeService.getConfig().getAddress())
-                .setExecuter(this.getBroker()).setSubmitBroker(this.getBroker()).setSubmitModel(this.getSubmit_model())
-                .setSubmitTimeout(this.getSubmit_timeout());
+                .setExecuter(this.getBroker()).setSubmitModel(submitModel);
         return builder.build();
     }
 
@@ -224,8 +195,6 @@ public class InnerTask {
         innerTask.setUnit(task.getUnit());
         innerTask.setImmediately(task.isImmediately());
         innerTask.setParam(task.getParam());
-        innerTask.setSubmit_model(task.getSubmit_model());
-        innerTask.setSubmit_timeout(task.getSubmit_timeout());
         return innerTask;
     }
 }

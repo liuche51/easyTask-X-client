@@ -4,9 +4,7 @@ import com.github.liuche51.easyTaskX.client.cluster.BrokerService;
 import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
-import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 import com.github.liuche51.easyTaskX.client.task.AnnularQueueTask;
-import com.github.liuche51.easyTaskX.client.task.SendTaskTask;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import com.google.protobuf.ByteString;
 
@@ -26,8 +24,6 @@ public class LeaderNotifyClientBrokerChangedHandler extends BaseHandler {
                 NodeService.CURRENT_NODE.getBrokers().add(new BaseNode(items[1]));
                 if (!BrokerService.WAIT_SEND_TASK.containsKey(items[1])) {//找到新加入的Broker队列
                     BrokerService.WAIT_SEND_TASK.put(items[1], new LinkedBlockingQueue<>(NodeService.getConfig().getWaitSendTaskCount()));
-                    SendTaskTask task = new SendTaskTask(items[1]);
-                    task.start();
                 }
                 break;
             case StringConstant.DELETE:
