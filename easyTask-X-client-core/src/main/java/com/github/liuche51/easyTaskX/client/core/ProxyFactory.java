@@ -34,7 +34,7 @@ public class ProxyFactory {
                         } finally {
                             log.debug("任务:{} 代理执行结束", id);
                             if (target.getTaskType().equals(TaskType.ONECE)) {
-                                BrokerService.deleteTask(id, target.getBroker());
+                                BrokerService.addWAIT_DELETE_TASK(target.getBroker(), id);
                             }
                         }
                     }

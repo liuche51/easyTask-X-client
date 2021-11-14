@@ -69,6 +69,7 @@ public class NodeService {
         timerTasks.add(startHeartBeatTask());
         timerTasks.add(startUpdateBrokersTask());
         timerTasks.add(startSenderTask());
+        timerTasks.add(startDeleteTask());
     }
 
     /**
@@ -102,6 +103,14 @@ public class NodeService {
      */
     public static TimerTask startSenderTask() {
         SenderTask task = new SenderTask();
+        task.start();
+        return task;
+    }
+    /**
+     * 启动负责将待删除任务队列任务发送到服务端
+     */
+    public static TimerTask startDeleteTask() {
+        DeleteTask task = new DeleteTask();
         task.start();
         return task;
     }

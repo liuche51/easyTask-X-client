@@ -12,23 +12,21 @@ import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- *  Clinet响应：通知Clinets。Broker发生变更。
+ *  Clinet响应：Leader通知Clinets。Broker发生变更。
  */
 public class LeaderNotifyClientBrokerChangedHandler extends BaseHandler {
     @Override
     public ByteString process(Dto.Frame frame) throws Exception {
         String body = frame.getBody();
         String[] items = body.split(StringConstant.CHAR_SPRIT_STRING);//type+Broker地址+新master地址
+        String broker=items[1];
         switch (items[0]) {
             case StringConstant.ADD:
-                NodeService.CURRENT_NODE.getBrokers().add(new BaseNode(items[1]));
-                if (!BrokerService.WAIT_SEND_TASK.containsKey(items[1])) {//找到新加入的Broker队列
-                    BrokerService.WAIT_SEND_TASK.put(items[1], new LinkedBlockingQueue<>(NodeService.getConfig().getWaitSendTaskCount()));
-                }
+                NodeService.CURRENT_NODE.getBrokers().add(new BaseNode(broker));// 任务发送队列WAIT_SEND_TASK，在实际添加时判断新增
                 break;
             case StringConstant.DELETE:
                 //更新现有任务中的broker
-                final String oldBroker=items[1];
+                final String oldBroker=broker;
                 final String newBroker=items[2];
                 NodeService.getConfig().getClusterPool().submit(new Runnable() {
                     @Override
@@ -40,11 +38,13 @@ public class LeaderNotifyClientBrokerChangedHandler extends BaseHandler {
                 Iterator<BaseNode> temps = NodeService.CURRENT_NODE.getBrokers().iterator();
                 while (temps.hasNext()) {
                     BaseNode bn = temps.next();
-                    if (bn.getAddress().equals(items[1]))
+                    if (bn.getAddress().equals(oldBroker))
                         NodeService.CURRENT_NODE.getBrokers().remove(bn);
                 }
                 //移除任务发送到该Broker的队列
-                BrokerService.WAIT_SEND_TASK.remove(items[1]);
+                BrokerService.WAIT_SEND_TASK.remove(oldBroker);
+                //移除删除任务发送队列
+                BrokerService.WAIT_DELETE_TASK.remove(oldBroker);
                 break;
             default:break;
         }

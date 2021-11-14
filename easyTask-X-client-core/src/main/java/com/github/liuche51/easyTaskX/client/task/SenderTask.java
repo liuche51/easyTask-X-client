@@ -13,8 +13,10 @@ import com.github.liuche51.easyTaskX.client.util.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 负责将待发送任务队列任务发送到服务端
@@ -26,18 +28,19 @@ public class SenderTask extends TimerTask {
     @Override
     public void run() {
         while (!isExit()) {
+            setLastRunTime(new Date());
             try {
                 Collection<LinkedBlockingQueue<SubmitTaskRequest>> queues = BrokerService.WAIT_SEND_TASK.values();
                 List<SubmitTaskRequest> batch = new ArrayList<>(10);
                 for (LinkedBlockingQueue<SubmitTaskRequest> queue : queues) { // 轮询每个队列
                     queue.drainTo(batch, 10);// 批量获取，为空不阻塞。
                 }
-                ScheduleDto.ScheduleList.Builder builder0 = ScheduleDto.ScheduleList.newBuilder();
                 if (batch.size() > 0) {
                     NodeService.getConfig().getClusterPool().submit(new Runnable() {
                         @Override
                         public void run() {
                             try {
+                                ScheduleDto.ScheduleList.Builder builder0 = ScheduleDto.ScheduleList.newBuilder();
                                 batch.forEach(x -> {
                                     builder0.addSchedules(x.getSchedule());
                                 });
@@ -56,6 +59,13 @@ public class SenderTask extends TimerTask {
                         }
                     });
 
+                } else {
+                    try {
+                        if (new Date().getTime() - getLastRunTime().getTime() < 500)//防止频繁空转
+                            TimeUnit.MILLISECONDS.sleep(500L);
+                    } catch (InterruptedException e) {
+                        log.error("", e);
+                    }
                 }
 
             } catch (Exception e) {

@@ -21,10 +21,18 @@ public class BrokerService {
     /**
      * 等待发送任务队列。
      * 1、每个broker一个单独的队列
-     * 2、每个队列由一个专属线程负责提交任务到服务端
+     * 2、由专门的一个线程负责轮询所有队列，批量方式打包成线程池任务推送至服务端
      * 3、服务端收到任务后，立即返回信息。等任务完成同步后，异步返回给客户端
      */
     public static ConcurrentHashMap<String, LinkedBlockingQueue<SubmitTaskRequest>> WAIT_SEND_TASK = new ConcurrentHashMap<>(2);
+    /**
+     * 等待删除的任务队列。
+     * 1、每个broker一个单独的队列
+     * 2、由专门的一个线程负责轮询所有队列，批量方式打包成线程池任务推送至服务端
+     * 3、服务端收到任务后，立即返回信息。等任务完成同步后，异步返回给客户端
+     */
+    public static ConcurrentHashMap<String, LinkedBlockingQueue<String>> WAIT_DELETE_TASK = new ConcurrentHashMap<>(2);
+
     /**
      * 任务同步到服务端状态记录
      */
@@ -37,7 +45,7 @@ public class BrokerService {
      * @param task
      * @throws Exception
      */
-    public static void submitTask(InnerTask task,int submitModel,int timeout) throws Exception {
+    public static void submitTask(InnerTask task, int submitModel, int timeout) throws Exception {
         CopyOnWriteArrayList<BaseNode> brokers = NodeService.CURRENT_NODE.getBrokers();
         BaseNode selectedNode = null;
         if (brokers == null || brokers.size() == 0)
@@ -50,34 +58,7 @@ public class BrokerService {
             selectedNode = brokers.get(0);
         task.setBroker(selectedNode.getAddress());//将任务所属服务端节点标记一下
         ScheduleDto.Schedule schedule = task.toScheduleDto(submitModel);
-        addWait_Send_Task(new SubmitTaskRequest(schedule,selectedNode.getAddress(),timeout));
-    }
-
-    /**
-     * 删除任务。
-     * 已执行完毕的任务，系统自动删除用
-     *
-     * @param taskId
-     * @param brokerAddress
-     */
-    public static void deleteTask(String taskId, String brokerAddress) {
-        NodeService.getConfig().getClusterPool().submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-                    builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientNotifyBrokerDeleteTask).setSource(NodeService.getConfig().getAddress())
-                            .setBody(taskId);
-                    NettyClient client = new BaseNode(brokerAddress).getClientWithCount(1);
-                    boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, client, 1, 0, null);
-                    if (!ret) {
-                        log.error("任务:{} 删除失败。", taskId);
-                    }
-                } catch (Exception e) {
-                    log.error("deleteTask()-> exception!", e);
-                }
-            }
-        });
+        addWAIT_SEND_TASK(new SubmitTaskRequest(schedule, selectedNode.getAddress(), timeout));
     }
 
     /**
@@ -85,13 +66,13 @@ public class BrokerService {
      *
      * @param submitTaskRequest
      */
-    public static void addWait_Send_Task(SubmitTaskRequest submitTaskRequest) throws Exception {
+    public static void addWAIT_SEND_TASK(SubmitTaskRequest submitTaskRequest) throws Exception {
         LinkedBlockingQueue<SubmitTaskRequest> queue = WAIT_SEND_TASK.get(submitTaskRequest.getSubmitBroker());
         if (queue == null) {// 防止数据不一致导致未能正确添加Broker的队列
             WAIT_SEND_TASK.put(submitTaskRequest.getSubmitBroker(), new LinkedBlockingQueue<SubmitTaskRequest>(NodeService.getConfig().getWaitSendTaskCount()));
-            queue=WAIT_SEND_TASK.get(submitTaskRequest.getSubmitBroker());
+            queue = WAIT_SEND_TASK.get(submitTaskRequest.getSubmitBroker());
         }
-        boolean offer = queue.offer(submitTaskRequest, submitTaskRequest.getTimeOut(), TimeUnit.SECONDS);
+        boolean offer = queue.offer(submitTaskRequest, submitTaskRequest.getTimeOut(), TimeUnit.SECONDS);//插入元素，如果队列满阻塞，超时后返回false，否则返回true
         if (offer == false) {
             throw new Exception("Queue WAIT_SEND_TASK is full.Please wait a moment try agin.");
         } else {
@@ -106,7 +87,7 @@ public class BrokerService {
                     if (submitTaskResult != null) {
                         switch (submitTaskResult.getStatus()) {
                             case 0://如果线程被唤醒，判断下任务的状态。为0表示超时自动被唤醒的。
-                                deleteTask(submitTaskRequest.getSchedule().getId(), submitTaskRequest.getSubmitBroker());//任务有可能后续可能提交成功.触发任务删除操作
+                                BrokerService.addWAIT_DELETE_TASK(submitTaskRequest.getSubmitBroker(), submitTaskRequest.getSchedule().getId());
                                 throw new Exception("Task submit timeout,Please try agin.");
                             case 1://服务端已经反馈任务提交成功
                                 return;
@@ -122,5 +103,27 @@ public class BrokerService {
                 }
             }
         }
+    }
+
+    /**
+     * 往所有broker发送队列里添加任务
+     *
+     * @param taskId
+     */
+    public static void addWAIT_DELETE_TASK(String broker, String taskId) {
+        LinkedBlockingQueue<String> queue = WAIT_DELETE_TASK.get(broker);
+        if (queue == null) {// 防止数据不一致导致未能正确添加Broker的队列
+            WAIT_DELETE_TASK.put(broker, new LinkedBlockingQueue<String>(NodeService.getConfig().getWaitSendTaskCount()));
+            queue = WAIT_DELETE_TASK.get(broker);
+        }
+        try {
+            boolean offer = queue.offer(taskId, NodeService.getConfig().getTimeOut(), TimeUnit.SECONDS);//插入元素，如果队列满阻塞，超时后返回false，否则返回true
+            if (offer == false) {
+                log.error("Queue WAIT_DELETE_TASK is full.");
+            }
+        } catch (InterruptedException e) {
+            log.error("", e);
+        }
+
     }
 }
