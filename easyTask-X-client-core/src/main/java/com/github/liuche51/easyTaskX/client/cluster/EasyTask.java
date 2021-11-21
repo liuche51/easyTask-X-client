@@ -1,10 +1,18 @@
 package com.github.liuche51.easyTaskX.client.cluster;
 
 import com.github.liuche51.easyTaskX.client.core.TaskType;
+import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import com.github.liuche51.easyTaskX.client.dto.Task;
+import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
+import com.github.liuche51.easyTaskX.client.dto.proto.StringListDto;
+import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
+import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
+import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
 import com.github.liuche51.easyTaskX.client.task.AnnularQueueTask;
 import com.github.liuche51.easyTaskX.client.util.Util;
+
+import java.util.List;
 
 /**
  * 用户程序编程接口
@@ -59,5 +67,23 @@ public class EasyTask {
         }
         AnnularQueueTask.getInstance().submitAddSlice(innerTask);
         return innerTask.getId();
+    }
+
+    /**
+     * 删除任务。全局通缉模式
+     * @param taskIds
+     * @return
+     * @throws Exception
+     */
+    public boolean delete(List<String> taskIds) throws Exception {
+        StringListDto.StringList.Builder builder0 = StringListDto.StringList.newBuilder();
+        taskIds.forEach(x -> {
+            builder0.addList(x);
+        });
+        Dto.Frame.Builder builder = Dto.Frame.newBuilder();
+        builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientNotifyLeaderDeleteTask).setSource(NodeService.getConfig().getAddress())
+                .setBodyBytes(builder0.build().toByteString());
+        boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, NodeService.CURRENT_NODE.getClusterLeader().getClient(), 1, 0, null);
+        return ret;
     }
 }
