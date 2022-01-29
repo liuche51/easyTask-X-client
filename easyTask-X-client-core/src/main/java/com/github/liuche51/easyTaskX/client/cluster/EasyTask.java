@@ -47,6 +47,25 @@ public class EasyTask {
      * @paratimeoutm timeout
      */
     public String submit(Task task, int submitModel, int timeout) throws Exception {
+        return submit(task, submitModel, timeout, null);
+    }
+
+    public TaskFuture submitFutrue(Task task, int submitModel, int timeout) throws Exception {
+        TaskFuture future = new TaskFuture();
+        NodeService.getConfig().getClusterPool().submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    submit(task, submitModel, timeout, future);
+                } catch (Exception e) {
+
+                }
+            }
+        });
+        return future;
+    }
+
+    private String submit(Task task, int submitModel, int timeout, TaskFuture future) throws Exception {
         if (!NodeService.IS_STARTED) throw new Exception("the easyTask-X has not started,please wait a moment!");
         if (submitModel < 0 || submitModel > 2) throw new Exception("submitModel can set be (0,1,2)!");
         if (timeout <= 0) throw new Exception("timeout mustbe >0!");
@@ -63,14 +82,40 @@ public class EasyTask {
         if (!(innerTask.getTaskType().equals(TaskType.ONECE) && innerTask.isImmediately())) {
             //以下两行代码不要调换顺序，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
             //为保持数据一致性。应该先提交任务，成功后再执行任务。否则可能出现任务已经执行，持久化却失败了。导致异常情况
-            BrokerService.submitTask(innerTask, submitModel, timeout);
+            BrokerService.submitTask(innerTask, submitModel, timeout, isFuture);
         }
         AnnularQueueTask.getInstance().submitAddSlice(innerTask);
+        if (future != null)
+            future.setId(innerTask.getId());
         return innerTask.getId();
     }
 
     /**
+     * 异步提交模式
+     *
+     * @param task
+     * @param submitModel
+     * @param timeout
+     * @param listener
+     * @throws Exception
+     */
+    public void submitSync(Task task, int submitModel, int timeout, Listener listener) throws Exception {
+        NodeService.getConfig().getClusterPool().submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String id = submit(task, submitModel, timeout);
+                    listener.success(id);
+                } catch (Exception e) {
+                    listener.failed(e);
+                }
+            }
+        });
+    }
+
+    /**
      * 删除任务。全局通缉模式
+     *
      * @param taskIds
      * @return
      * @throws Exception

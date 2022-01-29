@@ -1,5 +1,6 @@
 package com.github.liuche51.easyTaskX.client.dto;
 
+import com.github.liuche51.easyTaskX.client.enume.SubmitTaskResultStatusEnum;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
 
 /**
@@ -10,7 +11,7 @@ public class SubmitTaskResult {
      * 任务状态。
      * 0等待反馈，1反馈成功，9反馈失败。
      */
-    private int status=0;
+    private int status= SubmitTaskResultStatusEnum.WAITING;
     private String error= StringConstant.EMPTY;
 
     public int getStatus() {
