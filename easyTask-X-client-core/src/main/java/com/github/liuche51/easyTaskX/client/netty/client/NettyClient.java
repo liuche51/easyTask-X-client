@@ -2,6 +2,7 @@ package com.github.liuche51.easyTaskX.client.netty.client;
 
 
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
+import com.github.liuche51.easyTaskX.client.util.LogUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -21,7 +22,6 @@ import java.net.InetSocketAddress;
  */
 public class NettyClient {
 
-    private static final Logger log = LoggerFactory.getLogger(NettyClient.class);
     private String host;
     private int port =0;
     private Bootstrap bootstrap;
@@ -52,7 +52,7 @@ public class NettyClient {
         this.host=host;
         this.port=port;
         this.handler = new ClientHandler();
-        log.info("nettyClinet start to " +getObjectAddress() + "...");
+        LogUtil.info("nettyClinet start to " +getObjectAddress() + "...");
         bootstrap = new Bootstrap();
         bootstrap.group(workerGroup);
         bootstrap.channel(NioSocketChannel.class);
@@ -71,17 +71,17 @@ public class NettyClient {
             }
         });
         channelFuture = bootstrap.connect(new InetSocketAddress(host,port)).sync();//sync表示同步阻塞，直到连接成功。
-        log.info("nettyClinet started to " + getObjectAddress() + "...");
+        LogUtil.info("nettyClinet started to " + getObjectAddress() + "...");
         clientChannel = channelFuture.channel();
         //注册异步连接事件
         channelFuture.addListener((ChannelFutureListener) future -> {
             //如果连接成功
             if (future.isSuccess()) {
-                log.info("Client[" + channelFuture.channel().localAddress().toString() + "]connected...");
+                LogUtil.info("Client[" + channelFuture.channel().localAddress().toString() + "]connected...");
             }
             //如果连接失败，尝试重新连接
             else {
-                log.info("Client[" + channelFuture.channel().localAddress().toString() + "]connect failed，重新连接中...");
+                LogUtil.info("Client[" + channelFuture.channel().localAddress().toString() + "]connect failed，重新连接中...");
                 future.channel().close();
                 channelFuture = bootstrap.connect(new InetSocketAddress(host,port));//.sync();
                 clientChannel = channelFuture.channel();
@@ -90,7 +90,7 @@ public class NettyClient {
 
         //注册关闭事件
         channelFuture.channel().closeFuture().addListener(cfl -> {
-            log.info("Client[" + this.clientChannel.localAddress().toString() + "] from server["+this.clientChannel.remoteAddress()+"] has disconnected...");
+            LogUtil.info("Client[" + this.clientChannel.localAddress().toString() + "] from server["+this.clientChannel.remoteAddress()+"] has disconnected...");
         });
     }
 
@@ -107,7 +107,7 @@ public class NettyClient {
      * 客户端关闭
      */
     public void close() {
-        log.info("close()->:客户端[" + channelFuture.channel().localAddress().toString() + "]对连接服务端["+this.clientChannel.remoteAddress()+"]发起主动关闭!");
+        LogUtil.info("close()->:客户端[" + channelFuture.channel().localAddress().toString() + "]对连接服务端["+this.clientChannel.remoteAddress()+"]发起主动关闭!");
         //关闭客户端套接字
         if (clientChannel != null) {
             clientChannel.close();

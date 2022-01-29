@@ -14,7 +14,6 @@ import java.util.concurrent.ThreadPoolExecutor;
  * 系统配置项
  */
 public class EasyTaskConfig {
-    private static final Logger log = LoggerFactory.getLogger(EasyTaskConfig.class);
     /**
      * zk地址。必填 如:127.0.0.1:2181,192.168.1.128:2181
      */
@@ -47,6 +46,10 @@ public class EasyTaskConfig {
      * 节点分组。不同的服务分组应该不同的。否则可能导致服务执行任务。默认Default
      */
     private String group="Default";
+    /**
+     * 是否debug模式。设置为TRUE，就可以看到完整日志跟踪信息
+     */
+    private boolean debug=false;
     /**
      * Folow节点从leader更新注册表信息间隔时间。单位秒。
      */
@@ -163,6 +166,14 @@ public class EasyTaskConfig {
 
     public void setGroup(String group) {
         this.group = group;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     public ExecutorService getClusterPool() {

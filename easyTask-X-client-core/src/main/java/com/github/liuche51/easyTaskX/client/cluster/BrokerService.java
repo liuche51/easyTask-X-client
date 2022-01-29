@@ -9,6 +9,7 @@ import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
+import com.github.liuche51.easyTaskX.client.util.LogUtil;
 import com.github.liuche51.easyTaskX.client.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class BrokerService {
-    private static final Logger log = LoggerFactory.getLogger(BrokerService.class);
     /**
      * 等待发送任务队列。
      * 1、每个broker一个单独的队列
@@ -119,10 +119,10 @@ public class BrokerService {
         try {
             boolean offer = queue.offer(taskId, NodeService.getConfig().getTimeOut(), TimeUnit.SECONDS);//插入元素，如果队列满阻塞，超时后返回false，否则返回true
             if (offer == false) {
-                log.error("Queue WAIT_DELETE_TASK is full.");
+                LogUtil.error("Queue WAIT_DELETE_TASK is full.");
             }
         } catch (InterruptedException e) {
-            log.error("", e);
+            LogUtil.error("", e);
         }
 
     }

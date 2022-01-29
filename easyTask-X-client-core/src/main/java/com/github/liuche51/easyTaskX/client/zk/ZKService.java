@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.zk.LeaderData;
+import com.github.liuche51.easyTaskX.client.util.LogUtil;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.curator.framework.recipes.cache.NodeCache;
@@ -12,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ZKService {
-    private static Logger log = LoggerFactory.getLogger(ZKService.class);
     /**
      * 获取当前节点的值信息
      *
@@ -41,10 +41,10 @@ public class ZKService {
                 String data = "null";
                 if (nodeCache.getCurrentData() != null)
                     data = new String(nodeCache.getCurrentData().getData());
-                log.info("listenLeaderDataNode()->leader节点变更事件触发!value={}", data);
+                LogUtil.info("listenLeaderDataNode()->leader节点变更事件触发!value={}", data);
                 // 防止节点被删除时发生错误
                 if (nodeCache.getCurrentData() == null) {
-                    log.error("listenLeaderDataNode()->exception!nodeCache.getCurrentData() == null，可能该节点已被删除");
+                    LogUtil.error("listenLeaderDataNode()->exception!nodeCache.getCurrentData() == null，可能该节点已被删除");
                     NodeService.CURRENT_NODE.setClusterLeader(null);
                 } else {
                     // 获取节点最新的数据
@@ -74,7 +74,7 @@ public class ZKService {
             return JSONObject.parseObject(bytes, clazz);
         } catch (Exception e) {
             //节点不存在了，属于正常情况。
-            log.error("normally exception!getDataByPath():" + e.getMessage());
+            LogUtil.error("normally exception!getDataByPath():" + e.getMessage());
         }
         return null;
     }

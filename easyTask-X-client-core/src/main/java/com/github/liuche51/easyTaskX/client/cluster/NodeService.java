@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 public class NodeService {
-    private static Logger log = LoggerFactory.getLogger(NodeService.class);
     private static EasyTaskConfig config = null;
     public static volatile boolean IS_STARTED = false;//是否已经启动
     /**

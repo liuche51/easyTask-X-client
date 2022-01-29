@@ -4,6 +4,7 @@ import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.ResultDto;
 import com.github.liuche51.easyTaskX.client.netty.server.handler.BaseHandler;
+import com.github.liuche51.easyTaskX.client.util.LogUtil;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import com.google.protobuf.ByteString;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,7 +18,6 @@ import java.net.InetAddress;
  *
  */
 public class ServerHandler extends SimpleChannelInboundHandler<Object> {
-    private static final Logger log = LoggerFactory.getLogger(ServerHandler.class);
 
     /**
      * 接受客户端发过来的消息。
@@ -30,7 +30,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
         // 收到消息直接打印输出
         StringBuilder str = new StringBuilder("Received Client:");
         str.append(ctx.channel().remoteAddress()).append(" send : ").append(msg);
-        log.debug(str.toString());
+        LogUtil.debug(str.toString());
         Dto.Frame.Builder builder = Dto.Frame.newBuilder();
         ResultDto.Result.Builder result = ResultDto.Result.newBuilder();
         result.setResult(StringConstant.TRUE);
@@ -45,7 +45,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
             if (bs != null)
                 result.setBodyBytes(bs);
         } catch (Exception e) {
-            log.error("Deal client msg occured error！", e);
+            LogUtil.error("Deal client msg occured error！", e);
             result.setResult(StringConstant.FALSE);
             result.setMsg(e.getMessage());
         }
@@ -61,7 +61,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
             super.channelActive(ctx);
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            log.error("channelActive exception!", e);
+            LogUtil.error("channelActive exception!", e);
         }
 
     }

@@ -5,6 +5,7 @@ import com.github.liuche51.easyTaskX.client.core.ProxyFactory;
 import com.github.liuche51.easyTaskX.client.core.Slice;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.dto.InnerTask;
+import com.github.liuche51.easyTaskX.client.util.LogUtil;
 import com.github.liuche51.easyTaskX.client.util.Util;
 
 import java.sql.Timestamp;
@@ -66,7 +67,7 @@ public class AnnularQueueTask extends TimerTask {
                 }
                 Slice slice = slices[second];
                 //slice.getList().size()数量多时，会非常耗时。生产下需要关闭此处
-                // log.debug("已执行时间分片:{}，任务数量:{}", second, slice.getList() == null ? 0 : slice.getList().size());
+                // LogUtil.debug("已执行时间分片:{}，任务数量:{}", second, slice.getList() == null ? 0 : slice.getList().size());
                 lastSecond = second;
                 NodeService.getConfig().getDispatchs().submit(new Runnable() {
                     public void run() {
@@ -83,7 +84,7 @@ public class AnnularQueueTask extends TimerTask {
                                 if (TaskType.PERIOD.equals(s.getTaskType()))//周期任务需要重新提交新任务
                                     periodSchedules.add(s);
                                 list.remove(item.getKey());
-                                log.debug("工作任务:{} 已提交执行。所属分片:{}", s.getId(), second);
+                                LogUtil.debug("工作任务:{} 已提交执行。所属分片:{}", s.getId(), second);
                             }
                             //因为列表是已经按截止执行时间排好序的，可以节省后面元素的过期判断
                             else break;
@@ -105,9 +106,9 @@ public class AnnularQueueTask extends TimerTask {
             try {
                 schedule.setExecuteTime(InnerTask.getNextExcuteTimeStamp(schedule.getPeriod(), schedule.getUnit()));
                 int slice = AddSlice(schedule);
-                log.debug("已重新提交周期任务:{}，所属分片:{}，线程ID:{}", schedule.getId(), slice, Thread.currentThread().getId());
+                LogUtil.debug("已重新提交周期任务:{}，所属分片:{}，线程ID:{}", schedule.getId(), slice, Thread.currentThread().getId());
             } catch (Exception e) {
-                log.error("submitNewPeriodSchedule exception！", e);
+                LogUtil.error("submitNewPeriodSchedule exception！", e);
             }
         }
     }
@@ -124,7 +125,7 @@ public class AnnularQueueTask extends TimerTask {
         Slice slice = slices[second];
         ConcurrentHashMap<String, InnerTask> list2 = slice.getList();
         list2.put(innerTask.getId(), innerTask);
-        log.debug("已添加类型:{}任务:{}，所属分片:{} 预计执行时间:{} 线程ID:{}", innerTask.getTaskType().name(), innerTask.getId(), time.getSecond(), time.toLocalTime(), Thread.currentThread().getId());
+        LogUtil.debug("已添加类型:{}任务:{}，所属分片:{} 预计执行时间:{} 线程ID:{}", innerTask.getTaskType().name(), innerTask.getId(), time.getSecond(), time.toLocalTime(), Thread.currentThread().getId());
         return second;
     }
 
@@ -138,7 +139,7 @@ public class AnnularQueueTask extends TimerTask {
     public void submitAddSlice(InnerTask task) throws Exception {
         //立即执行的任务，第一次不走时间分片环形队列，直接提交执行。一次性和周期性任务都通过isImmediately判断是否需要立即执行
         if (task.isImmediately()) {
-            log.debug("立即执行类工作任务:{}已提交代理执行", task.getId());
+            LogUtil.debug("立即执行类工作任务:{}已提交代理执行", task.getId());
             Runnable proxy = (Runnable) new ProxyFactory(task).getProxyInstance();
             NodeService.getConfig().getWorkers().submit(proxy);
             //如果是一次性任务，则不用继续提交到时间分片中了

@@ -9,6 +9,7 @@ import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
+import com.github.liuche51.easyTaskX.client.util.LogUtil;
 import com.github.liuche51.easyTaskX.client.util.Util;
 
 import java.util.ArrayList;
@@ -50,10 +51,10 @@ public class SenderTask extends TimerTask {
                                 NettyClient client = new BaseNode(batch.get(0).getSubmitBroker()).getClientWithCount(1);
                                 boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, client, 1, 0, null);
                                 if (!ret) {
-                                    log.error("SendTaskTask->sendSyncMsgWithCount exception!");
+                                    LogUtil.error("SendTaskTask->sendSyncMsgWithCount exception!");
                                 }
                             } catch (Exception e) {
-                                log.error("", e);
+                                LogUtil.error("", e);
                             }
 
                         }
@@ -64,12 +65,12 @@ public class SenderTask extends TimerTask {
                         if (new Date().getTime() - getLastRunTime().getTime() < 500)//防止频繁空转
                             TimeUnit.MILLISECONDS.sleep(500L);
                     } catch (InterruptedException e) {
-                        log.error("", e);
+                        LogUtil.error("", e);
                     }
                 }
 
             } catch (Exception e) {
-                log.error("", e);
+                LogUtil.error("", e);
             }
         }
     }

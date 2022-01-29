@@ -9,6 +9,7 @@ import com.github.liuche51.easyTaskX.client.dto.proto.StringListDto;
 import com.github.liuche51.easyTaskX.client.dto.zk.LeaderData;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
+import com.github.liuche51.easyTaskX.client.util.LogUtil;
 import com.github.liuche51.easyTaskX.client.util.StringUtils;
 import com.github.liuche51.easyTaskX.client.util.Util;
 import com.github.liuche51.easyTaskX.client.zk.ZKService;
@@ -40,12 +41,12 @@ public class UpdateBrokersTask extends TimerTask {
                    }
                 }
             } catch (Exception e) {
-                log.error("", e);
+                LogUtil.error("", e);
             }
             try {
                 Thread.sleep(NodeService.getConfig().getUpdateBrokersTime());
             } catch (InterruptedException e) {
-                log.error("", e);
+                LogUtil.error("", e);
             }
         }
     }

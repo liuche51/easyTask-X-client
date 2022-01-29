@@ -14,6 +14,5 @@ import org.slf4j.LoggerFactory;
 import java.time.ZonedDateTime;
 
 public class NodeUtil {
-    private static Logger log = LoggerFactory.getLogger(NodeUtil.class);
 
 }

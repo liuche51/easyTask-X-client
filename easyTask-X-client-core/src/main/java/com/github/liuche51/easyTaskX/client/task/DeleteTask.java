@@ -10,6 +10,7 @@ import com.github.liuche51.easyTaskX.client.dto.proto.StringListDto;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
+import com.github.liuche51.easyTaskX.client.util.LogUtil;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import com.github.liuche51.easyTaskX.client.util.Util;
 
@@ -54,7 +55,7 @@ public class DeleteTask extends TimerTask {
                                         });
                                     }
                                 } catch (Exception e) {
-                                    log.error("", e);
+                                    LogUtil.error("", e);
                                 }
                             }
                         });
@@ -64,10 +65,10 @@ public class DeleteTask extends TimerTask {
                     if (new Date().getTime() - getLastRunTime().getTime() < 500)//防止频繁空转
                         TimeUnit.MILLISECONDS.sleep(500L);
                 } catch (InterruptedException e) {
-                    log.error("", e);
+                    LogUtil.error("", e);
                 }
             } catch (Exception e) {
-                log.error("", e);
+                LogUtil.error("", e);
             }
         }
     }
