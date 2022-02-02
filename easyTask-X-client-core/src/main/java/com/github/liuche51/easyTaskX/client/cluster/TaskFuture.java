@@ -1,6 +1,7 @@
 package com.github.liuche51.easyTaskX.client.cluster;
 
 import com.github.liuche51.easyTaskX.client.dto.SubmitTaskResult;
+import com.github.liuche51.easyTaskX.client.util.StringConstant;
 
 public class TaskFuture {
     /**
@@ -8,13 +9,10 @@ public class TaskFuture {
      */
     private String id;
     /**
-     * 是否还在等待反馈结果中
-     */
-    private boolean isWaiting=true;
-    /**
      * 反馈状态
      */
     private int bakStatus=0;
+    private String error= StringConstant.EMPTY;
     public String getId() {
         return id;
     }
@@ -23,12 +21,20 @@ public class TaskFuture {
         this.id = id;
     }
 
-    public boolean isWaiting() {
-        return isWaiting;
+    public int getBakStatus() {
+        return bakStatus;
     }
 
-    public void setWaiting(boolean waiting) {
-        isWaiting = waiting;
+    public void setBakStatus(int bakStatus) {
+        this.bakStatus = bakStatus;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 
     public String get() {

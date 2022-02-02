@@ -59,14 +59,14 @@ public class BrokerService {
             selectedNode = brokers.get(0);
         task.setBroker(selectedNode.getAddress());//将任务所属服务端节点标记一下
         ScheduleDto.Schedule schedule = task.toScheduleDto(submitModel);
-        addWAIT_SEND_TASK(new SubmitTaskRequest(schedule, selectedNode.getAddress(), timeout), isFuture);
+        addWAIT_SEND_TASK(new SubmitTaskRequest(schedule, selectedNode.getAddress(), timeout), future);
     }
 
     /**
      * 往所有broker发送队列里添加任务
      *
      * @param submitTaskRequest
-     * @param future            是否future接口调用
+     * @param future            future接口调用
      */
     private static void addWAIT_SEND_TASK(SubmitTaskRequest submitTaskRequest, TaskFuture future) throws Exception {
         LinkedBlockingQueue<SubmitTaskRequest> queue = WAIT_SEND_TASK.get(submitTaskRequest.getSubmitBroker());
@@ -92,15 +92,17 @@ public class BrokerService {
                                 case SubmitTaskResultStatusEnum
                                         .WAITING://如果线程被唤醒，判断下任务的状态。为0表示超时自动被唤醒的。
                                     BrokerService.addWAIT_DELETE_TASK(submitTaskRequest.getSubmitBroker(), submitTaskRequest.getSchedule().getId());
-                                    future.setWaiting(false);
-                                    throw new Exception("Task submit timeout,Please try agin.");
-                                case 1://服务端已经反馈任务提交成功
+                                    submitTaskResult.setStatus(SubmitTaskResultStatusEnum.FAILED);//最终将超时状态的结果设置为失败状态。
+                                throw new Exception("Task submit timeout,Please try agin.");
+                                case SubmitTaskResultStatusEnum.SUCCEED://服务端已经反馈任务提交成功
                                     return;
-                                case 9:
+                                case SubmitTaskResultStatusEnum.FAILED:
                                     throw new Exception("Task submit failed,Please try agin." + submitTaskResult.getError());
                                 default:
                                     break;
                             }
+                            if (future != null)
+                                future.setBakStatus(submitTaskResult.getStatus());
                         } finally {
                             TASK_SYNC_BROKER_STATUS.remove(submitTaskRequest.getSchedule().getId());
                         }

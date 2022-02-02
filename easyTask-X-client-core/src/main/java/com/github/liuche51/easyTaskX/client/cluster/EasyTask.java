@@ -7,6 +7,7 @@ import com.github.liuche51.easyTaskX.client.dto.Task;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.StringListDto;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
+import com.github.liuche51.easyTaskX.client.enume.SubmitTaskResultStatusEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
 import com.github.liuche51.easyTaskX.client.task.AnnularQueueTask;
@@ -58,7 +59,8 @@ public class EasyTask {
                 try {
                     submit(task, submitModel, timeout, future);
                 } catch (Exception e) {
-
+                    future.setBakStatus(SubmitTaskResultStatusEnum.FAILED);
+                    future.setError(e.getMessage());
                 }
             }
         });
@@ -82,7 +84,7 @@ public class EasyTask {
         if (!(innerTask.getTaskType().equals(TaskType.ONECE) && innerTask.isImmediately())) {
             //以下两行代码不要调换顺序，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
             //为保持数据一致性。应该先提交任务，成功后再执行任务。否则可能出现任务已经执行，持久化却失败了。导致异常情况
-            BrokerService.submitTask(innerTask, submitModel, timeout, isFuture);
+            BrokerService.submitTask(innerTask, submitModel, timeout, future);
         }
         AnnularQueueTask.getInstance().submitAddSlice(innerTask);
         if (future != null)
