@@ -52,15 +52,19 @@ public class EasyTask {
     }
 
     public TaskFuture submitFutrue(Task task, int submitModel, int timeout) throws Exception {
-        TaskFuture future = new TaskFuture();
+        TaskFuture future = new TaskFuture(timeout);
         NodeService.getConfig().getClusterPool().submit(new Runnable() {
             @Override
             public void run() {
                 try {
                     submit(task, submitModel, timeout, future);
                 } catch (Exception e) {
-                    future.setBakStatus(SubmitTaskResultStatusEnum.FAILED);
+                    future.setStatus(SubmitTaskResultStatusEnum.FAILED);
                     future.setError(e.getMessage());
+                }finally {
+                    synchronized (future){
+                        future.notify();//通知其他锁定次对象的线程唤醒继续执行
+                    }
                 }
             }
         });
@@ -88,7 +92,9 @@ public class EasyTask {
         }
         AnnularQueueTask.getInstance().submitAddSlice(innerTask);
         if (future != null)
+        {
             future.setId(innerTask.getId());
+        }
         return innerTask.getId();
     }
 

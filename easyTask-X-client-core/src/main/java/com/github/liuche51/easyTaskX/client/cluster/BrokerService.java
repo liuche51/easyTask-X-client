@@ -102,7 +102,7 @@ public class BrokerService {
                                     break;
                             }
                             if (future != null)
-                                future.setBakStatus(submitTaskResult.getStatus());
+                                future.setStatus(submitTaskResult.getStatus());
                         } finally {
                             TASK_SYNC_BROKER_STATUS.remove(submitTaskRequest.getSchedule().getId());
                         }

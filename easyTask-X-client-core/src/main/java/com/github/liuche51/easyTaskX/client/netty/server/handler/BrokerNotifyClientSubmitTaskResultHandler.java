@@ -23,6 +23,9 @@ public class BrokerNotifyClientSubmitTaskResultHandler extends BaseHandler {
             if(submitTaskResult!=null){
                 submitTaskResult.setStatus(Integer.parseInt(split[1]));
                 submitTaskResult.setError(split[2]);
+                synchronized (submitTaskResult){//通知其他锁定次对象的线程唤醒继续执行
+                    submitTaskResult.notify();
+                }
             }
         }
         return null;
