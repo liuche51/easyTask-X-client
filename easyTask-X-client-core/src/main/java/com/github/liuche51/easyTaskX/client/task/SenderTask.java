@@ -1,7 +1,7 @@
 package com.github.liuche51.easyTaskX.client.task;
 
 import com.github.liuche51.easyTaskX.client.cluster.BrokerService;
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.SubmitTaskRequest;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
@@ -37,7 +37,7 @@ public class SenderTask extends TimerTask {
                     queue.drainTo(batch, 10);// 批量获取，为空不阻塞。
                 }
                 if (batch.size() > 0) {
-                    NodeService.getConfig().getClusterPool().submit(new Runnable() {
+                    ClientService.getConfig().getClusterPool().submit(new Runnable() {
                         @Override
                         public void run() {
                             try {
@@ -46,7 +46,7 @@ public class SenderTask extends TimerTask {
                                     builder0.addSchedules(x.getSchedule());
                                 });
                                 Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-                                builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientSubmitTaskToBroker).setSource(NodeService.getConfig().getAddress())
+                                builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientSubmitTaskToBroker).setSource(ClientService.getConfig().getAddress())
                                         .setBodyBytes(builder0.build().toByteString());
                                 NettyClient client = new BaseNode(batch.get(0).getSubmitBroker()).getClientWithCount(1);
                                 boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, client, 1, 0, null);

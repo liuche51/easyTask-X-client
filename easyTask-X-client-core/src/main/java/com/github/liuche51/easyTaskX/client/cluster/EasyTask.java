@@ -1,14 +1,12 @@
 package com.github.liuche51.easyTaskX.client.cluster;
 
 import com.github.liuche51.easyTaskX.client.core.TaskType;
-import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import com.github.liuche51.easyTaskX.client.dto.Task;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.StringListDto;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.enume.SubmitTaskResultStatusEnum;
-import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
 import com.github.liuche51.easyTaskX.client.task.AnnularQueueTask;
 import com.github.liuche51.easyTaskX.client.util.Util;
@@ -27,7 +25,7 @@ public class EasyTask {
      * @throws Exception
      */
     public String submitAllowWait(Task task, int submitModel, int timeout) throws Exception {
-        while (!NodeService.IS_STARTED) {
+        while (!ClientService.IS_STARTED) {
             Thread.sleep(1000l);//如果未启动则休眠1s
         }
         return this.submit(task, submitModel, timeout);
@@ -53,7 +51,7 @@ public class EasyTask {
 
     public TaskFuture submitFutrue(Task task, int submitModel, int timeout) throws Exception {
         TaskFuture future = new TaskFuture(timeout);
-        NodeService.getConfig().getClusterPool().submit(new Runnable() {
+        ClientService.getConfig().getClusterPool().submit(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -72,14 +70,14 @@ public class EasyTask {
     }
 
     private String submit(Task task, int submitModel, int timeout, TaskFuture future) throws Exception {
-        if (!NodeService.IS_STARTED) throw new Exception("the easyTask-X has not started,please wait a moment!");
+        if (!ClientService.IS_STARTED) throw new Exception("the easyTask-X has not started,please wait a moment!");
         if (submitModel < 0 || submitModel > 2) throw new Exception("submitModel can set be (0,1,2)!");
         if (timeout <= 0) throw new Exception("timeout mustbe >0!");
         InnerTask innerTask = InnerTask.parseFromTask(task);
         innerTask.setId(Util.generateUniqueId());
         String path = task.getClass().getName();
         innerTask.setTaskClassPath(path);
-        innerTask.setGroup(NodeService.getConfig().getGroup());
+        innerTask.setGroup(ClientService.getConfig().getGroup());
         //周期任务，且为非立即执行的，尽可能早点计算其下一个执行时间。免得因为持久化导致执行时间延迟
         if (innerTask.getTaskType().equals(TaskType.PERIOD) && !innerTask.isImmediately()) {
             innerTask.setExecuteTime(InnerTask.getNextExcuteTimeStamp(innerTask.getPeriod(), innerTask.getUnit()));
@@ -108,7 +106,7 @@ public class EasyTask {
      * @throws Exception
      */
     public void submitSync(Task task, int submitModel, int timeout, Listener listener) throws Exception {
-        NodeService.getConfig().getClusterPool().submit(new Runnable() {
+        ClientService.getConfig().getClusterPool().submit(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -134,9 +132,9 @@ public class EasyTask {
             builder0.addList(x);
         });
         Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-        builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientNotifyLeaderDeleteTask).setSource(NodeService.getConfig().getAddress())
+        builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientNotifyLeaderDeleteTask).setSource(ClientService.getConfig().getAddress())
                 .setBodyBytes(builder0.build().toByteString());
-        boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, NodeService.CURRENT_NODE.getClusterLeader().getClient(), 1, 0, null);
+        boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, ClientService.CLUSTER_LEADER.getClient(), 1, 0, null);
         return ret;
     }
 }

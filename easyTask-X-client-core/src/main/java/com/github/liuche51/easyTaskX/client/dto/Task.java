@@ -1,12 +1,8 @@
 package com.github.liuche51.easyTaskX.client.dto;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.core.TimeUnit;
-import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 /**

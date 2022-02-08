@@ -1,13 +1,10 @@
 package com.github.liuche51.easyTaskX.client.zk;
 
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
-import com.github.liuche51.easyTaskX.client.util.StringConstant;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ZKUtil {
     //会话超时时间
@@ -24,7 +21,7 @@ public class ZKUtil {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 10);
         //2 通过工厂创建连接
          client = CuratorFrameworkFactory.builder()
-                .connectString(NodeService.getConfig().getZkAddress()).connectionTimeoutMs(CONNECTION_TIMEOUT)
+                .connectString(ClientService.getConfig().getZkAddress()).connectionTimeoutMs(CONNECTION_TIMEOUT)
                 .sessionTimeoutMs(SESSION_TIMEOUT)
                 .retryPolicy(retryPolicy)
                 .namespace("easyTask-X")//命名空间

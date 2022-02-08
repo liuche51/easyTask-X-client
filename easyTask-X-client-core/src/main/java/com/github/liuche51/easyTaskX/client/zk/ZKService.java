@@ -1,7 +1,7 @@
 package com.github.liuche51.easyTaskX.client.zk;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.zk.LeaderData;
 import com.github.liuche51.easyTaskX.client.util.LogUtil;
@@ -9,8 +9,6 @@ import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.framework.recipes.cache.NodeCacheListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ZKService {
     /**
@@ -45,14 +43,14 @@ public class ZKService {
                 // 防止节点被删除时发生错误
                 if (nodeCache.getCurrentData() == null) {
                     LogUtil.error("listenLeaderDataNode()->exception!nodeCache.getCurrentData() == null，可能该节点已被删除");
-                    NodeService.CURRENT_NODE.setClusterLeader(null);
+                    ClientService.CLUSTER_LEADER=null;
                 } else {
                     // 获取节点最新的数据
                     LeaderData ld = JSONObject.parseObject(nodeCache.getCurrentData().getData(), LeaderData.class);
                     if (ld == null)
-                        NodeService.CURRENT_NODE.setClusterLeader(null);
+                        ClientService.CLUSTER_LEADER=null;
                     else
-                        NodeService.CURRENT_NODE.setClusterLeader(new BaseNode(ld.getHost(), ld.getPort()));
+                        ClientService.CLUSTER_LEADER=new BaseNode(ld.getHost(), ld.getPort());
                 }
             }
         });

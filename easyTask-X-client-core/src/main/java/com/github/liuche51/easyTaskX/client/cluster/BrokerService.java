@@ -4,16 +4,9 @@ import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import com.github.liuche51.easyTaskX.client.dto.SubmitTaskRequest;
 import com.github.liuche51.easyTaskX.client.dto.SubmitTaskResult;
-import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
-import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.enume.SubmitTaskResultStatusEnum;
-import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
-import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
 import com.github.liuche51.easyTaskX.client.util.LogUtil;
-import com.github.liuche51.easyTaskX.client.util.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -47,7 +40,7 @@ public class BrokerService {
      * @throws Exception
      */
     public static void submitTask(InnerTask task, int submitModel, int timeout, TaskFuture future) throws Exception {
-        CopyOnWriteArrayList<BaseNode> brokers = NodeService.CURRENT_NODE.getBrokers();
+        CopyOnWriteArrayList<BaseNode> brokers = ClientService.BROKERS;
         BaseNode selectedNode = null;
         if (brokers == null || brokers.size() == 0)
             throw new Exception("brokers==null||brokers.size()==0");
@@ -71,7 +64,7 @@ public class BrokerService {
     private static void addWAIT_SEND_TASK(SubmitTaskRequest submitTaskRequest, TaskFuture future) throws Exception {
         LinkedBlockingQueue<SubmitTaskRequest> queue = WAIT_SEND_TASK.get(submitTaskRequest.getSubmitBroker());
         if (queue == null) {// 防止数据不一致导致未能正确添加Broker的队列
-            WAIT_SEND_TASK.put(submitTaskRequest.getSubmitBroker(), new LinkedBlockingQueue<SubmitTaskRequest>(NodeService.getConfig().getWaitSendTaskCount()));
+            WAIT_SEND_TASK.put(submitTaskRequest.getSubmitBroker(), new LinkedBlockingQueue<SubmitTaskRequest>(ClientService.getConfig().getWaitSendTaskCount()));
             queue = WAIT_SEND_TASK.get(submitTaskRequest.getSubmitBroker());
         }
         boolean offer = queue.offer(submitTaskRequest, submitTaskRequest.getTimeOut(), TimeUnit.SECONDS);//插入元素，如果队列满阻塞，超时后返回false，否则返回true
@@ -122,11 +115,11 @@ public class BrokerService {
     public static void addWAIT_DELETE_TASK(String broker, String taskId) {
         LinkedBlockingQueue<String> queue = WAIT_DELETE_TASK.get(broker);
         if (queue == null) {// 防止数据不一致导致未能正确添加Broker的队列
-            WAIT_DELETE_TASK.put(broker, new LinkedBlockingQueue<String>(NodeService.getConfig().getWaitSendTaskCount()));
+            WAIT_DELETE_TASK.put(broker, new LinkedBlockingQueue<String>(ClientService.getConfig().getWaitSendTaskCount()));
             queue = WAIT_DELETE_TASK.get(broker);
         }
         try {
-            boolean offer = queue.offer(taskId, NodeService.getConfig().getTimeOut(), TimeUnit.SECONDS);//插入元素，如果队列满阻塞，超时后返回false，否则返回true
+            boolean offer = queue.offer(taskId, ClientService.getConfig().getTimeOut(), TimeUnit.SECONDS);//插入元素，如果队列满阻塞，超时后返回false，否则返回true
             if (offer == false) {
                 LogUtil.error("Queue WAIT_DELETE_TASK is full.");
             }

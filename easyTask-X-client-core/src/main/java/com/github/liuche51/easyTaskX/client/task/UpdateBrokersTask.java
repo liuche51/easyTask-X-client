@@ -1,19 +1,14 @@
 package com.github.liuche51.easyTaskX.client.task;
 
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.ByteStringPack;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
-import com.github.liuche51.easyTaskX.client.dto.proto.ResultDto;
 import com.github.liuche51.easyTaskX.client.dto.proto.StringListDto;
-import com.github.liuche51.easyTaskX.client.dto.zk.LeaderData;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
 import com.github.liuche51.easyTaskX.client.util.LogUtil;
-import com.github.liuche51.easyTaskX.client.util.StringUtils;
 import com.github.liuche51.easyTaskX.client.util.Util;
-import com.github.liuche51.easyTaskX.client.zk.ZKService;
-import io.netty.channel.ChannelFuture;
 
 import java.util.List;
 
@@ -27,16 +22,16 @@ public class UpdateBrokersTask extends TimerTask {
         while (!isExit()) {
             try {
                Dto.Frame.Builder builder= Dto.Frame.newBuilder();
-                builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientRequestLeaderSendBrokers).setSource(NodeService.getConfig().getAddress());
+                builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientRequestLeaderSendBrokers).setSource(ClientService.getConfig().getAddress());
                 ByteStringPack pack=new ByteStringPack();
-                boolean ret=NettyMsgService.sendSyncMsgWithCount(builder,NodeService.CURRENT_NODE.getClusterLeader().getClient(),1,0,pack);
+                boolean ret=NettyMsgService.sendSyncMsgWithCount(builder, ClientService.CLUSTER_LEADER.getClient(),1,0,pack);
                 if(ret){
                    StringListDto.StringList list=StringListDto.StringList.parseFrom(pack.getRespbody()) ;
                    List<String> brokers=list.getListList();
-                   NodeService.CURRENT_NODE.getBrokers().clear();
+                   ClientService.BROKERS.clear();
                    if(brokers!=null){
                        brokers.forEach(x->{
-                           NodeService.CURRENT_NODE.getBrokers().add(new BaseNode(x));
+                           ClientService.BROKERS.add(new BaseNode(x));
                        });
                    }
                 }
@@ -44,7 +39,7 @@ public class UpdateBrokersTask extends TimerTask {
                 LogUtil.error("", e);
             }
             try {
-                Thread.sleep(NodeService.getConfig().getUpdateBrokersTime());
+                Thread.sleep(ClientService.getConfig().getUpdateBrokersTime());
             } catch (InterruptedException e) {
                 LogUtil.error("", e);
             }

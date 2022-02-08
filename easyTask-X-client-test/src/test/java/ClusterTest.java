@@ -1,5 +1,5 @@
 
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.core.EasyTaskConfig;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.core.TimeUnit;
@@ -72,7 +72,7 @@ public class ClusterTest {
                 new LinkedBlockingQueue<Runnable>()));
         config.setWorkers(new ThreadPoolExecutor(12, 12, 10000, java.util.concurrent.TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>()));
-        NodeService.start(config);
+        ClientService.start(config);
         CusTask1 task1 = new CusTask1();
         task1.setExecuteTime(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());//10秒后执行
         Map<String, String> param = new HashMap<String, String>() {

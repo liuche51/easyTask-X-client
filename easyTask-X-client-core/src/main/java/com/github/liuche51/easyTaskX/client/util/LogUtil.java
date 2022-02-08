@@ -1,6 +1,6 @@
 package com.github.liuche51.easyTaskX.client.util;
 
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public class LogUtil {
      * @param o
      */
     public static void debug(String s, Object... o) {
-        if (NodeService.getConfig().isDebug())
+        if (ClientService.getConfig().isDebug())
             LogUtil.info(s, o);
     }
 }

@@ -1,7 +1,7 @@
 package com.github.liuche51.easyTaskX.client.dto;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.core.TimeUnit;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
@@ -163,7 +163,7 @@ public class InnerTask {
         ScheduleDto.Schedule.Builder builder = ScheduleDto.Schedule.newBuilder();
         builder.setId(this.getId()).setClassPath(this.getTaskClassPath()).setExecuteTime(this.getExecuteTime())
                 .setTaskType(this.getTaskType().name()).setPeriod(this.period).setUnit(this.getUnit().name())
-                .setParam(JSONObject.toJSONString(this.getParam())).setSource(NodeService.getConfig().getAddress())
+                .setParam(JSONObject.toJSONString(this.getParam())).setSource(ClientService.getConfig().getAddress())
                 .setExecuter(this.getBroker()).setSubmitModel(submitModel);
         return builder.build();
     }

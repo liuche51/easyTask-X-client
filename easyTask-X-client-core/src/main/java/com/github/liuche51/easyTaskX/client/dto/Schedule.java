@@ -1,9 +1,7 @@
 package com.github.liuche51.easyTaskX.client.dto;
 
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
-
-import java.net.UnknownHostException;
 
 public class Schedule {
     private String id;
@@ -124,7 +122,7 @@ public class Schedule {
         ScheduleDto.Schedule.Builder builder=ScheduleDto.Schedule.newBuilder();
         builder.setId(this.id).setClassPath(this.classPath).setExecuteTime(this.executeTime)
                 .setTaskType(this.taskType).setPeriod(this.period).setUnit(this.unit)
-                .setParam(this.param).setSource(NodeService.getConfig().getAddress());
+                .setParam(this.param).setSource(ClientService.getConfig().getAddress());
         return builder.build();
     }
 }

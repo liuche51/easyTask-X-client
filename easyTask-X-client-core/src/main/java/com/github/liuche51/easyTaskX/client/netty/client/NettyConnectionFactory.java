@@ -1,9 +1,7 @@
 package com.github.liuche51.easyTaskX.client.netty.client;
 
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.util.LogUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -66,7 +64,7 @@ public class NettyConnectionFactory {
         String key = conn.getHost() + ":" + conn.getPort();
         ConcurrentLinkedQueue<NettyClient> pool = pools.get(key);
         //连接没有被关闭的才可以放入池中
-        if (conn.getClientChannel()!=null&&conn.getClientChannel().isActive()&&pool.size() < NodeService.getConfig().getNettyPoolSize()) {
+        if (conn.getClientChannel()!=null&&conn.getClientChannel().isActive()&&pool.size() < ClientService.getConfig().getNettyPoolSize()) {
             pool.add(conn);
         } else {
             conn.close();

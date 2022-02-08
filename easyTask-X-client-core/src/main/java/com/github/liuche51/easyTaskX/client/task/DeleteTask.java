@@ -1,17 +1,14 @@
 package com.github.liuche51.easyTaskX.client.task;
 
 import com.github.liuche51.easyTaskX.client.cluster.BrokerService;
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.dto.BaseNode;
-import com.github.liuche51.easyTaskX.client.dto.SubmitTaskRequest;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
-import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 import com.github.liuche51.easyTaskX.client.dto.proto.StringListDto;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyClient;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
 import com.github.liuche51.easyTaskX.client.util.LogUtil;
-import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import com.github.liuche51.easyTaskX.client.util.Util;
 
 import java.util.*;
@@ -36,7 +33,7 @@ public class DeleteTask extends TimerTask {
                     Map.Entry<String, LinkedBlockingQueue<String>> item = items.next();
                     item.getValue().drainTo(batch, 10);// 批量获取，为空不阻塞。
                     if (batch.size() > 0) {
-                        NodeService.getConfig().getClusterPool().submit(new Runnable() {
+                        ClientService.getConfig().getClusterPool().submit(new Runnable() {
                             @Override
                             public void run() {
                                 try {
@@ -45,7 +42,7 @@ public class DeleteTask extends TimerTask {
                                         builder0.addList(x);
                                     });
                                     Dto.Frame.Builder builder = Dto.Frame.newBuilder();
-                                    builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientNotifyBrokerDeleteTask).setSource(NodeService.getConfig().getAddress())
+                                    builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.ClientNotifyBrokerDeleteTask).setSource(ClientService.getConfig().getAddress())
                                             .setBodyBytes(builder0.build().toByteString());
                                     NettyClient client = new BaseNode(item.getKey()).getClientWithCount(1);
                                     boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, client, 1, 0, null);

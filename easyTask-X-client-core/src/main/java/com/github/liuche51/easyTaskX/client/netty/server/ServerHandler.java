@@ -1,6 +1,6 @@
 package com.github.liuche51.easyTaskX.client.netty.server;
 
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.ResultDto;
 import com.github.liuche51.easyTaskX.client.netty.server.handler.BaseHandler;
@@ -9,8 +9,6 @@ import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import com.google.protobuf.ByteString;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 
@@ -35,7 +33,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
         ResultDto.Result.Builder result = ResultDto.Result.newBuilder();
         result.setResult(StringConstant.TRUE);
         try {
-            builder.setSource(NodeService.getConfig().getAddress());
+            builder.setSource(ClientService.getConfig().getAddress());
             Dto.Frame frame = (Dto.Frame) msg;
             builder.setInterfaceName(frame.getInterfaceName());
             builder.setIdentity(frame.getIdentity());

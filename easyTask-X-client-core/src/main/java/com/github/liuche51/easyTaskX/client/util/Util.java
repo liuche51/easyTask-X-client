@@ -1,11 +1,8 @@
 package com.github.liuche51.easyTaskX.client.util;
 
 
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
-import com.github.liuche51.easyTaskX.client.dto.Node;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -85,9 +82,9 @@ public class Util {
     public static String getSource(String oldSource) throws Exception {
         String source=StringConstant.EMPTY;
         if(oldSource==null||oldSource== StringConstant.EMPTY)
-            source= NodeService.getConfig().getAddress();
+            source= ClientService.getConfig().getAddress();
         else
-            source= NodeService.getConfig().getAddress()+"<-"+oldSource;
+            source= ClientService.getConfig().getAddress()+"<-"+oldSource;
         return source;
     }
 }

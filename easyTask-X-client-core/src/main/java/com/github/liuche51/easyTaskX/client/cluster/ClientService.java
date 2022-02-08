@@ -1,26 +1,31 @@
 package com.github.liuche51.easyTaskX.client.cluster;
 
 import com.github.liuche51.easyTaskX.client.core.EasyTaskConfig;
-import com.github.liuche51.easyTaskX.client.core.TaskType;
-import com.github.liuche51.easyTaskX.client.dto.Node;
-import com.github.liuche51.easyTaskX.client.dto.InnerTask;
-import com.github.liuche51.easyTaskX.client.dto.Task;
+import com.github.liuche51.easyTaskX.client.dto.BaseNode;
+import com.github.liuche51.easyTaskX.client.dto.ClientNode;
 import com.github.liuche51.easyTaskX.client.netty.server.NettyServer;
 import com.github.liuche51.easyTaskX.client.task.*;
 import com.github.liuche51.easyTaskX.client.task.TimerTask;
 import com.github.liuche51.easyTaskX.client.util.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class NodeService {
+public class ClientService {
     private static EasyTaskConfig config = null;
     public static volatile boolean IS_STARTED = false;//是否已经启动
     /**
+     * 集群所有可用的brokers
+     */
+    public static CopyOnWriteArrayList<BaseNode> BROKERS = new CopyOnWriteArrayList<BaseNode>();
+    /**
+     * leader
+     */
+    public static BaseNode CLUSTER_LEADER = null;
+    /**
      * 当前集群节点的Node对象
      */
-    public static Node CURRENT_NODE;
+    public static ClientNode CURRENT_NODE;
 
     /**
      * 集群一次性任务线程集合。
@@ -39,7 +44,7 @@ public class NodeService {
     }
 
     public static void setConfig(EasyTaskConfig config) {
-        NodeService.config = config;
+        ClientService.config = config;
     }
 
     /**
@@ -56,14 +61,14 @@ public class NodeService {
         if (config == null)
             throw new Exception("config is null,please set a EasyTaskConfig!");
         EasyTaskConfig.validateNecessary(config);
-        NodeService.config = config;
+        ClientService.config = config;
         NettyServer.getInstance().run();//启动组件的Netty服务端口
         initCURRENT_NODE();//初始化本节点的集群服务
         IS_STARTED = true;
     }
 
     private static void initCURRENT_NODE() throws Exception {
-        CURRENT_NODE = new Node(Util.getLocalIP(), NodeService.getConfig().getServerPort());
+        CURRENT_NODE = new ClientNode(Util.getLocalIP(), ClientService.getConfig().getServerPort());
         timerTasks.add(startAnnularQueueTask());
         timerTasks.add(startHeartBeatTask());
         timerTasks.add(startUpdateBrokersTask());

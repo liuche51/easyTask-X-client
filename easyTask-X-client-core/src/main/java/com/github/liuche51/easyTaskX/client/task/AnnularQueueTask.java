@@ -1,12 +1,11 @@
 package com.github.liuche51.easyTaskX.client.task;
 
-import com.github.liuche51.easyTaskX.client.cluster.NodeService;
+import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.core.ProxyFactory;
 import com.github.liuche51.easyTaskX.client.core.Slice;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import com.github.liuche51.easyTaskX.client.util.LogUtil;
-import com.github.liuche51.easyTaskX.client.util.Util;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -16,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * 任务执行器
@@ -69,7 +67,7 @@ public class AnnularQueueTask extends TimerTask {
                 //slice.getList().size()数量多时，会非常耗时。生产下需要关闭此处
                 // LogUtil.debug("已执行时间分片:{}，任务数量:{}", second, slice.getList() == null ? 0 : slice.getList().size());
                 lastSecond = second;
-                NodeService.getConfig().getDispatchs().submit(new Runnable() {
+                ClientService.getConfig().getDispatchs().submit(new Runnable() {
                     public void run() {
                         ConcurrentHashMap<String, InnerTask> list = slice.getList();
                         List<InnerTask> periodSchedules = new LinkedList<>();
@@ -80,7 +78,7 @@ public class AnnularQueueTask extends TimerTask {
                             //判断任务是否可以本次执行
                             if (currenttime >= s.getExecuteTime()) {
                                 Runnable proxy = (Runnable) new ProxyFactory(s).getProxyInstance();
-                                NodeService.getConfig().getWorkers().submit(proxy);
+                                ClientService.getConfig().getWorkers().submit(proxy);
                                 if (TaskType.PERIOD.equals(s.getTaskType()))//周期任务需要重新提交新任务
                                     periodSchedules.add(s);
                                 list.remove(item.getKey());
@@ -141,7 +139,7 @@ public class AnnularQueueTask extends TimerTask {
         if (task.isImmediately()) {
             LogUtil.debug("立即执行类工作任务:{}已提交代理执行", task.getId());
             Runnable proxy = (Runnable) new ProxyFactory(task).getProxyInstance();
-            NodeService.getConfig().getWorkers().submit(proxy);
+            ClientService.getConfig().getWorkers().submit(proxy);
             //如果是一次性任务，则不用继续提交到时间分片中了
             if (task.getTaskType().equals(TaskType.ONECE)) {
                 return;
