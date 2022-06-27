@@ -12,7 +12,7 @@ public class LogUtil {
      * @param o
      */
     public static void info(String s, Object... o) {
-        LogUtil.info(s, o);
+        log.info(s, o);
     }
     /**
      * error日志。和系统配置保持一直
@@ -20,7 +20,7 @@ public class LogUtil {
      * @param o
      */
     public static void error(String s, Object... o) {
-        LogUtil.error(s, o);
+        log.error(s, o);
     }
     /**
      * 专用于详细任务调试时使用。生产上需要关闭。
@@ -29,6 +29,6 @@ public class LogUtil {
      */
     public static void debug(String s, Object... o) {
         if (ClientService.getConfig().isDebug())
-            LogUtil.info(s, o);
+            log.info(s, o);
     }
 }

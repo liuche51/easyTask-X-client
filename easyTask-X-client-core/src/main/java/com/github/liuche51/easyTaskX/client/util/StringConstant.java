@@ -19,4 +19,6 @@ public class StringConstant {
     public static final String DELETE="delete";
     public static final String UPDATE="update";
 
+    public static final String ALIVE = "alive";
+
 }

@@ -33,4 +33,8 @@ public class NettyInterfaceEnum {
      * Broker通知Client提交的任务同步状态结果。
      */
     public static final String BrokerNotifyClientSubmitTaskResult="BrokerNotifyClientSubmitTaskResult";
+    /**
+     *follow通知leader，已经重新启动了
+     */
+    public static final String FollowNotifyLeaderHasRestart="FollowNotifyLeaderHasRestart";
 }

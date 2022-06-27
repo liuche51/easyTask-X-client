@@ -63,11 +63,22 @@ public class ClientService {
         EasyTaskConfig.validateNecessary(config);
         ClientService.config = config;
         NettyServer.getInstance().run();//启动组件的Netty服务端口
-        initCURRENT_NODE();//初始化本节点的集群服务
+        initCURRENT_NODE(true);//初始化本节点的集群服务
         IS_STARTED = true;
     }
 
-    private static void initCURRENT_NODE() throws Exception {
+    /**
+     * 初始化当前节点。
+     * 1、系统重启或因心网络问题被leader踢出，然后又恢复了
+     * 2、需要支持进程没死，然后重新初始化，可反复执行。被leader剔出后以新的节点加入集群
+     *
+     * @param isFirstStarted 是否首次初始化。进程重启属于首次
+     * @return
+     */
+    private static void initCURRENT_NODE(boolean isFirstStarted) throws Exception {
+        clearThreadTask();
+        if (isFirstStarted && !ClientUtil.isAliveInCluster())
+            ClientUtil.clearAllData();
         CURRENT_NODE = new ClientNode(Util.getLocalIP(), ClientService.getConfig().getServerPort());
         timerTasks.add(startAnnularQueueTask());
         timerTasks.add(startHeartBeatTask());
@@ -75,7 +86,19 @@ public class ClientService {
         timerTasks.add(startSenderTask());
         timerTasks.add(startDeleteTask());
     }
-
+    /**
+     * 清理掉所有定时或后台线程任务
+     */
+    public static void clearThreadTask() {
+        timerTasks.forEach(x -> {//先停止目前所有内部定时任务线程工作
+            x.setExit(true);
+        });
+        timerTasks.clear();
+        onceTasks.forEach(x -> {
+            x.setExit(true);
+        });
+        onceTasks.clear();
+    }
     /**
      * 节点对leader的心跳。
      */
