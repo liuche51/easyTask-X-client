@@ -2,10 +2,7 @@ package com.github.liuche51.easyTaskX.client.core;
 
 import com.github.liuche51.easyTaskX.client.util.StringUtils;
 import com.github.liuche51.easyTaskX.client.util.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -50,6 +47,12 @@ public class EasyTaskConfig {
      * 是否debug模式。设置为TRUE，就可以看到完整日志跟踪信息
      */
     private boolean debug=false;
+    /**
+     * 是否需要支持任务执行幂等性
+     * 1、true，则框架提供支持任务最多执行一次保障。会有性能消耗
+     * 2、false，任务执行可能会多次触发，需要用户自行解决
+     */
+    private boolean taskIdempotence=true;
     /**
      * Folow节点从leader更新注册表信息间隔时间。单位秒。
      */
@@ -174,6 +177,14 @@ public class EasyTaskConfig {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public boolean isTaskIdempotence() {
+        return taskIdempotence;
+    }
+
+    public void setTaskIdempotence(boolean taskIdempotence) {
+        this.taskIdempotence = taskIdempotence;
     }
 
     public ExecutorService getClusterPool() {

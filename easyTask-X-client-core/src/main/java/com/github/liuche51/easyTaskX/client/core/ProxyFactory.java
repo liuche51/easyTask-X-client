@@ -1,10 +1,7 @@
 package com.github.liuche51.easyTaskX.client.core;
 
-import com.github.liuche51.easyTaskX.client.cluster.BrokerService;
 import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import com.github.liuche51.easyTaskX.client.util.LogUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -33,9 +30,6 @@ public class ProxyFactory {
                             throw e;
                         } finally {
                             LogUtil.debug("任务:{} 代理执行结束", id);
-                            if (target.getTaskType().equals(TaskType.ONECE)) {
-                                BrokerService.addWAIT_DELETE_TASK(target.getBroker(), id);
-                            }
                         }
                     }
                 }

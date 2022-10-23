@@ -1,10 +1,17 @@
 package com.github.liuche51.easyTaskX.client.util;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.liuche51.easyTaskX.client.cluster.ClientService;
+import com.github.liuche51.easyTaskX.client.dto.Task;
+import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 
-import java.net.*;
-import java.util.*;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Util {
@@ -86,5 +93,18 @@ public class Util {
         else
             source= ClientService.getConfig().getAddress()+"<-"+oldSource;
         return source;
+    }
+    /**
+     * 转换为protocol buffer对象
+     *
+     * @return
+     */
+    public static ScheduleDto.Schedule toScheduleDto(int submitModel, Task task,String broker) throws Exception {
+        ScheduleDto.Schedule.Builder builder = ScheduleDto.Schedule.newBuilder();
+        builder.setId(Util.generateUniqueId()).setClassPath(task.getClass().getName()).setExecuteTime(task.getExecuteTime())
+                .setTaskType(task.getTaskType().name()).setPeriod(task.getPeriod()).setUnit(task.getUnit().name())
+                .setParam(JSONObject.toJSONString(task.getParam())).setSource(ClientService.getConfig().getAddress())
+                .setExecuter(broker).setSubmitModel(submitModel);
+        return builder.build();
     }
 }

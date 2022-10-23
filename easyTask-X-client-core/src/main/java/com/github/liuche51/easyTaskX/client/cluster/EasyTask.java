@@ -1,5 +1,6 @@
 package com.github.liuche51.easyTaskX.client.cluster;
 
+import com.github.liuche51.easyTaskX.client.core.ProxyFactory;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import com.github.liuche51.easyTaskX.client.dto.Task;
@@ -8,7 +9,6 @@ import com.github.liuche51.easyTaskX.client.dto.proto.StringListDto;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.enume.SubmitTaskResultStatusEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
-import com.github.liuche51.easyTaskX.client.task.AnnularQueueTask;
 import com.github.liuche51.easyTaskX.client.util.Util;
 
 import java.util.List;
@@ -83,12 +83,13 @@ public class EasyTask {
             innerTask.setExecuteTime(InnerTask.getNextExcuteTimeStamp(innerTask.getPeriod(), innerTask.getUnit()));
         }
         //一次性立即执行的任务不需要持久化服务
-        if (!(innerTask.getTaskType().equals(TaskType.ONECE) && innerTask.isImmediately())) {
-            //以下两行代码不要调换顺序，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
-            //为保持数据一致性。应该先提交任务，成功后再执行任务。否则可能出现任务已经执行，持久化却失败了。导致异常情况
+        if (innerTask.getTaskType().equals(TaskType.ONECE) && innerTask.isImmediately()) {
+            Runnable proxy = (Runnable) new ProxyFactory(innerTask).getProxyInstance();
+            ClientService.getConfig().getWorkers().submit(proxy);
+
+        }else {
             BrokerService.submitTask(innerTask, submitModel, timeout, future);
         }
-        AnnularQueueTask.getInstance().submitAddSlice(innerTask);
         if (future != null)
         {
             future.setId(innerTask.getId());

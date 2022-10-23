@@ -77,14 +77,11 @@ public class ClientService {
      */
     private static void initCURRENT_NODE(boolean isFirstStarted) throws Exception {
         clearThreadTask();
-        if (isFirstStarted && !ClientUtil.isAliveInCluster())
-            ClientUtil.clearAllData();
         CURRENT_NODE = new ClientNode(Util.getLocalIP(), ClientService.getConfig().getServerPort());
-        timerTasks.add(startAnnularQueueTask());
         timerTasks.add(startHeartBeatTask());
         timerTasks.add(startUpdateBrokersTask());
         timerTasks.add(startSenderTask());
-        timerTasks.add(startDeleteTask());
+        timerTasks.add(startClearTask());
     }
     /**
      * 清理掉所有定时或后台线程任务
@@ -108,14 +105,6 @@ public class ClientService {
         return task;
     }
 
-    /**
-     * 启动任务执行器
-     */
-    public static TimerTask startAnnularQueueTask() {
-        AnnularQueueTask task = AnnularQueueTask.getInstance();
-        task.start();
-        return task;
-    }
 
     /**
      * 启动更新Broker注册表信息
@@ -134,10 +123,10 @@ public class ClientService {
         return task;
     }
     /**
-     * 启动负责将待删除任务队列任务发送到服务端
+     * 启动负责清理客户端临时数据的任务
      */
-    public static TimerTask startDeleteTask() {
-        DeleteTask task = new DeleteTask();
+    public static TimerTask startClearTask() {
+        ClearTask task = new ClearTask();
         task.start();
         return task;
     }

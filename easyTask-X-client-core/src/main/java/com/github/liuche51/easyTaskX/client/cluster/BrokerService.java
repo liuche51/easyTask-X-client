@@ -6,10 +6,12 @@ import com.github.liuche51.easyTaskX.client.dto.SubmitTaskRequest;
 import com.github.liuche51.easyTaskX.client.dto.SubmitTaskResult;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 import com.github.liuche51.easyTaskX.client.enume.SubmitTaskResultStatusEnum;
-import com.github.liuche51.easyTaskX.client.util.LogUtil;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class BrokerService {
     /**
@@ -19,13 +21,7 @@ public class BrokerService {
      * 3、服务端收到任务后，立即返回信息。等任务完成同步后，异步返回给客户端
      */
     public static ConcurrentHashMap<String, LinkedBlockingQueue<SubmitTaskRequest>> WAIT_SEND_TASK = new ConcurrentHashMap<>(2);
-    /**
-     * 等待删除的任务队列。
-     * 1、每个broker一个单独的队列
-     * 2、由专门的一个线程负责轮询所有队列，批量方式打包成线程池任务推送至服务端
-     * 3、服务端收到任务后，立即返回信息。等任务完成同步后，异步返回给客户端
-     */
-    public static ConcurrentHashMap<String, LinkedBlockingQueue<String>> WAIT_DELETE_TASK = new ConcurrentHashMap<>(2);
+
 
     /**
      * 任务同步到服务端状态记录
@@ -84,7 +80,6 @@ public class BrokerService {
                             switch (submitTaskResult.getStatus()) {
                                 case SubmitTaskResultStatusEnum
                                         .WAITING://如果线程被唤醒，判断下任务的状态。为0表示超时自动被唤醒的。
-                                    BrokerService.addWAIT_DELETE_TASK(submitTaskRequest.getSubmitBroker(), submitTaskRequest.getSchedule().getId());
                                     submitTaskResult.setStatus(SubmitTaskResultStatusEnum.FAILED);//最终将超时状态的结果设置为失败状态。
                                 throw new Exception("Task submit timeout,Please try agin.");
                                 case SubmitTaskResultStatusEnum.SUCCEED://服务端已经反馈任务提交成功
@@ -105,27 +100,5 @@ public class BrokerService {
                 }
             }
         }
-    }
-
-    /**
-     * 往所有broker发送队列里添加任务
-     *
-     * @param taskId
-     */
-    public static void addWAIT_DELETE_TASK(String broker, String taskId) {
-        LinkedBlockingQueue<String> queue = WAIT_DELETE_TASK.get(broker);
-        if (queue == null) {// 防止数据不一致导致未能正确添加Broker的队列
-            WAIT_DELETE_TASK.put(broker, new LinkedBlockingQueue<String>(ClientService.getConfig().getWaitSendTaskCount()));
-            queue = WAIT_DELETE_TASK.get(broker);
-        }
-        try {
-            boolean offer = queue.offer(taskId, ClientService.getConfig().getTimeOut(), TimeUnit.SECONDS);//插入元素，如果队列满阻塞，超时后返回false，否则返回true
-            if (offer == false) {
-                LogUtil.error("Queue WAIT_DELETE_TASK is full.");
-            }
-        } catch (InterruptedException e) {
-            LogUtil.error("", e);
-        }
-
     }
 }

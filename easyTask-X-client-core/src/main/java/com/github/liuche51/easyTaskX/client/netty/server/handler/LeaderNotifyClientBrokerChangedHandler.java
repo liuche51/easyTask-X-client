@@ -4,7 +4,6 @@ import com.github.liuche51.easyTaskX.client.cluster.BrokerService;
 import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.dto.BaseNode;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
-import com.github.liuche51.easyTaskX.client.task.AnnularQueueTask;
 import com.github.liuche51.easyTaskX.client.util.StringConstant;
 import com.google.protobuf.ByteString;
 
@@ -26,13 +25,6 @@ public class LeaderNotifyClientBrokerChangedHandler extends BaseHandler {
             case StringConstant.DELETE:
                 //更新现有任务中的broker
                 final String oldBroker=broker;
-                final String newBroker=items[2];
-                ClientService.getConfig().getClusterPool().submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        AnnularQueueTask.getInstance().changeBroker(newBroker,oldBroker);
-                    }
-                });
                 //更新可用broker列表
                 Iterator<BaseNode> temps = ClientService.BROKERS.iterator();
                 while (temps.hasNext()) {
@@ -42,8 +34,6 @@ public class LeaderNotifyClientBrokerChangedHandler extends BaseHandler {
                 }
                 //移除任务发送到该Broker的队列
                 BrokerService.WAIT_SEND_TASK.remove(oldBroker);
-                //移除删除任务发送队列
-                BrokerService.WAIT_DELETE_TASK.remove(oldBroker);
                 break;
             default:break;
         }
