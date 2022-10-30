@@ -2,6 +2,7 @@ package com.github.liuche51.easyTaskX.client.dto;
 
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.core.TimeUnit;
+import com.github.liuche51.easyTaskX.client.enume.ImmediatelyType;
 
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class Task {
     private TaskType taskType = TaskType.ONECE;
     private long period;
     private TimeUnit unit;
-    private boolean immediately = false;//是否立即执行
+    private ImmediatelyType immediatelyType = ImmediatelyType.NONE;//立即执行类型
     private Map<String, String> param;
     public long getExecuteTime() {
         return executeTime;
@@ -52,12 +53,12 @@ public class Task {
         this.unit = unit;
     }
 
-    public boolean isImmediately() {
-        return immediately;
+    public ImmediatelyType getImmediatelyType() {
+        return immediatelyType;
     }
 
-    public void setImmediately(boolean immediately) {
-        this.immediately = immediately;
+    public void setImmediatelyType(ImmediatelyType immediatelyType) {
+        this.immediatelyType = immediatelyType;
     }
 
     public Map<String, String> getParam() {

@@ -5,6 +5,7 @@ import com.github.liuche51.easyTaskX.client.cluster.ClientService;
 import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.core.TimeUnit;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
+import com.github.liuche51.easyTaskX.client.enume.ImmediatelyType;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class InnerTask {
     private TaskType taskType = TaskType.ONECE;
     private long period;
     private TimeUnit unit;
-    private boolean immediately = false;//是否立即执行
+    private ImmediatelyType immediatelyType = ImmediatelyType.NONE;//立即执行类型
     private String id;
     private String taskClassPath;
     private String group = "Default";//默认分组
@@ -60,12 +61,12 @@ public class InnerTask {
         this.unit = unit;
     }
 
-    public boolean isImmediately() {
-        return immediately;
+    public ImmediatelyType getImmediatelyType() {
+        return immediatelyType;
     }
 
-    public void setImmediately(boolean immediately) {
-        this.immediately = immediately;
+    public void setImmediatelyType(ImmediatelyType immediatelyType) {
+        this.immediatelyType = immediatelyType;
     }
 
     public Map<String, String> getParam() {
@@ -162,7 +163,7 @@ public class InnerTask {
     public ScheduleDto.Schedule toScheduleDto(int submitModel) throws Exception {
         ScheduleDto.Schedule.Builder builder = ScheduleDto.Schedule.newBuilder();
         builder.setId(this.getId()).setClassPath(this.getTaskClassPath()).setExecuteTime(this.getExecuteTime())
-                .setTaskType(this.getTaskType().name()).setPeriod(this.period).setUnit(this.getUnit().name())
+                .setTaskType(this.getTaskType().name()).setImmediatelyType(this.getImmediatelyType().name()).setPeriod(this.period).setUnit(this.getUnit().name())
                 .setParam(JSONObject.toJSONString(this.getParam())).setSource(ClientService.getConfig().getAddress())
                 .setExecuter(this.getBroker()).setSubmitModel(submitModel);
         return builder.build();
@@ -181,6 +182,7 @@ public class InnerTask {
         task.setParam(JSONObject.parseObject(schedule.getParam(), Map.class));
         task.setPeriod(schedule.getPeriod());
         task.setTaskType(TaskType.getByValue(schedule.getTaskType()));
+        task.setImmediatelyType(ImmediatelyType.getByValue(schedule.getImmediatelyType()));
         task.setUnit(TimeUnit.getByValue(schedule.getUnit()));
         task.setTaskClassPath(schedule.getClassPath());
         //task.setGroup();
@@ -193,7 +195,7 @@ public class InnerTask {
         innerTask.setTaskType(task.getTaskType());
         innerTask.setPeriod(task.getPeriod());
         innerTask.setUnit(task.getUnit());
-        innerTask.setImmediately(task.isImmediately());
+        innerTask.setImmediatelyType(task.getImmediatelyType());
         innerTask.setParam(task.getParam());
         return innerTask;
     }

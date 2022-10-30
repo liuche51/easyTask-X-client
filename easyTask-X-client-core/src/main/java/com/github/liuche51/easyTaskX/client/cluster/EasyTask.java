@@ -6,6 +6,7 @@ import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import com.github.liuche51.easyTaskX.client.dto.Task;
 import com.github.liuche51.easyTaskX.client.dto.proto.Dto;
 import com.github.liuche51.easyTaskX.client.dto.proto.StringListDto;
+import com.github.liuche51.easyTaskX.client.enume.ImmediatelyType;
 import com.github.liuche51.easyTaskX.client.enume.NettyInterfaceEnum;
 import com.github.liuche51.easyTaskX.client.enume.SubmitTaskResultStatusEnum;
 import com.github.liuche51.easyTaskX.client.netty.client.NettyMsgService;
@@ -59,8 +60,8 @@ public class EasyTask {
                 } catch (Exception e) {
                     future.setStatus(SubmitTaskResultStatusEnum.FAILED);
                     future.setError(e.getMessage());
-                }finally {
-                    synchronized (future){
+                } finally {
+                    synchronized (future) {
                         future.notify();//通知其他锁定次对象的线程唤醒继续执行
                     }
                 }
@@ -79,19 +80,17 @@ public class EasyTask {
         innerTask.setTaskClassPath(path);
         innerTask.setGroup(ClientService.getConfig().getGroup());
         //周期任务，且为非立即执行的，尽可能早点计算其下一个执行时间。免得因为持久化导致执行时间延迟
-        if (innerTask.getTaskType().equals(TaskType.PERIOD) && !innerTask.isImmediately()) {
+        if (innerTask.getTaskType().equals(TaskType.PERIOD) && !innerTask.getImmediatelyType().equals(ImmediatelyType.NONE)) {
             innerTask.setExecuteTime(InnerTask.getNextExcuteTimeStamp(innerTask.getPeriod(), innerTask.getUnit()));
         }
-        //一次性立即执行的任务不需要持久化服务
-        if (innerTask.getTaskType().equals(TaskType.ONECE) && innerTask.isImmediately()) {
+        // 所有任务都要先上传服务器然后才能执行
+        BrokerService.submitTask(innerTask, submitModel, timeout, future);
+        //一次性本地立即执行的任务，直接本地执行
+        if (innerTask.getTaskType().equals(TaskType.ONECE) && innerTask.getImmediatelyType().equals(ImmediatelyType.LOCAL)) {
             Runnable proxy = (Runnable) new ProxyFactory(innerTask).getProxyInstance();
             ClientService.getConfig().getWorkers().submit(proxy);
-
-        }else {
-            BrokerService.submitTask(innerTask, submitModel, timeout, future);
         }
-        if (future != null)
-        {
+        if (future != null) {
             future.setId(innerTask.getId());
         }
         return innerTask.getId();
