@@ -1,6 +1,9 @@
 package com.github.liuche51.easyTaskX.client.util;
 
 import com.github.liuche51.easyTaskX.client.cluster.ClientService;
+import com.github.liuche51.easyTaskX.client.exception.ExceptionCode;
+import com.github.liuche51.easyTaskX.client.ext.TaskTraceExt;
+import com.github.liuche51.easyTaskX.client.exception.EasyTaskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.FormattingTuple;
@@ -67,7 +70,19 @@ public class LogUtil {
                 FormattingTuple ft = MessageFormatter.arrayFormat(s, o);
                 logs.add(ft.getMessage());
             }else if("ext".equalsIgnoreCase(ClientService.getConfig().getAdvanceConfig().getTaskTraceStoreModel())){
+                TaskTraceExt taskTraceExt = ClientService.getConfig().getAdvanceConfig().getTaskTraceExt();
+                if(taskTraceExt!=null){
+                    taskTraceExt.trace(taskId,s,o);
+                }else{
+                    try {
+                        throw new EasyTaskException(ExceptionCode.TaskTraceExt_NotFind,"config item taskTraceExt not find.");
+                    } catch (EasyTaskException e) {
+                        log.error(e.getMessage());
+                    }
+                }
 
+            }else if("local".equalsIgnoreCase(ClientService.getConfig().getAdvanceConfig().getTaskTraceStoreModel())){
+                // Todo 暂时不支持客户端本地存储日志，需要发送到服务端存储
             }
         }
     }

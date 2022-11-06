@@ -1,4 +1,4 @@
-package com.github.liuche51.easyTaskX.client.util.exception;
+package com.github.liuche51.easyTaskX.client.exception;
 
 /**
  * 连接异常

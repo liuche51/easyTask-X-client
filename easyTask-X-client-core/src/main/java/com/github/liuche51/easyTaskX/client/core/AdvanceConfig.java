@@ -1,5 +1,7 @@
 package com.github.liuche51.easyTaskX.client.core;
 
+import com.github.liuche51.easyTaskX.client.ext.TaskTraceExt;
+
 import java.util.concurrent.ExecutorService;
 
 public class AdvanceConfig {
@@ -51,6 +53,8 @@ public class AdvanceConfig {
      * 从leader更新Brokers列表间隔时间。单位秒。
      */
     private int updateBrokersTime = 60 * 60;
+
+    private TaskTraceExt taskTraceExt;
     /**
      * 集群公用程池
      */
@@ -148,6 +152,14 @@ public class AdvanceConfig {
 
     public void setTaskIdempotence(boolean taskIdempotence) {
         this.taskIdempotence = taskIdempotence;
+    }
+
+    public TaskTraceExt getTaskTraceExt() {
+        return taskTraceExt;
+    }
+
+    public void setTaskTraceExt(TaskTraceExt taskTraceExt) {
+        this.taskTraceExt = taskTraceExt;
     }
 
     public ExecutorService getClusterPool() {
