@@ -37,7 +37,7 @@ public class SenderTask extends TimerTask {
                     queue.drainTo(batch, 10);// 批量获取，为空不阻塞。
                 }
                 if (batch.size() > 0) {
-                    ClientService.getConfig().getClusterPool().submit(new Runnable() {
+                    ClientService.getConfig().getAdvanceConfig().getClusterPool().submit(new Runnable() {
                         @Override
                         public void run() {
                             try {

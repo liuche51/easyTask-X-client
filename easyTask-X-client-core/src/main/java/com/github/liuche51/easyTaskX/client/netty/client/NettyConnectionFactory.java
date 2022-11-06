@@ -64,7 +64,7 @@ public class NettyConnectionFactory {
         String key = conn.getHost() + ":" + conn.getPort();
         ConcurrentLinkedQueue<NettyClient> pool = pools.get(key);
         //连接没有被关闭的才可以放入池中
-        if (conn.getClientChannel()!=null&&conn.getClientChannel().isActive()&&pool.size() < ClientService.getConfig().getNettyPoolSize()) {
+        if (conn.getClientChannel()!=null&&conn.getClientChannel().isActive()&&pool.size() < ClientService.getConfig().getAdvanceConfig().getNettyPoolSize()) {
             pool.add(conn);
         } else {
             conn.close();

@@ -28,7 +28,7 @@ public class BrokerNotifyClientExecuteTaskHandler extends BaseHandler {
         List<ScheduleDto.Schedule> list = scheduleList.getSchedulesList();
         for (ScheduleDto.Schedule schedule : list) {
             //防止重复添加任务。接口幂等性设计
-            if (ClientService.getConfig().isTaskIdempotence()) {
+            if (ClientService.getConfig().getAdvanceConfig().isTaskIdempotence()) {
                 if (LastReceivedTaskId.containsKey(schedule.getId()))
                     continue;
                 LastReceivedTaskId.put(schedule.getId(), new Date().getTime());
@@ -36,7 +36,7 @@ public class BrokerNotifyClientExecuteTaskHandler extends BaseHandler {
 
             InnerTask innerTask = InnerTask.parseFromScheduleDto(schedule);
             Runnable proxy = (Runnable) new ProxyFactory(innerTask).getProxyInstance();
-            ClientService.getConfig().getWorkers().submit(proxy);
+            ClientService.getConfig().getAdvanceConfig().getWorkers().submit(proxy);
         }
         return null;
     }

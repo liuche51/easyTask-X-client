@@ -52,7 +52,7 @@ public class EasyTask {
 
     public TaskFuture submitFutrue(Task task, int submitModel, int timeout) throws Exception {
         TaskFuture future = new TaskFuture(timeout);
-        ClientService.getConfig().getClusterPool().submit(new Runnable() {
+        ClientService.getConfig().getAdvanceConfig().getClusterPool().submit(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -78,7 +78,7 @@ public class EasyTask {
         innerTask.setId(Util.generateUniqueId());
         String path = task.getClass().getName();
         innerTask.setTaskClassPath(path);
-        innerTask.setGroup(ClientService.getConfig().getGroup());
+        innerTask.setGroup(ClientService.getConfig().getAdvanceConfig().getGroup());
         //周期任务，且为非立即执行的，尽可能早点计算其下一个执行时间。免得因为持久化导致执行时间延迟
         if (innerTask.getTaskType().equals(TaskType.PERIOD) && !innerTask.getImmediatelyType().equals(ImmediatelyType.NONE)) {
             innerTask.setExecuteTime(InnerTask.getNextExcuteTimeStamp(innerTask.getPeriod(), innerTask.getUnit()));
@@ -88,7 +88,7 @@ public class EasyTask {
         //一次性本地立即执行的任务，直接本地执行
         if (innerTask.getTaskType().equals(TaskType.ONECE) && innerTask.getImmediatelyType().equals(ImmediatelyType.LOCAL)) {
             Runnable proxy = (Runnable) new ProxyFactory(innerTask).getProxyInstance();
-            ClientService.getConfig().getWorkers().submit(proxy);
+            ClientService.getConfig().getAdvanceConfig().getWorkers().submit(proxy);
         }
         if (future != null) {
             future.setId(innerTask.getId());
@@ -106,7 +106,7 @@ public class EasyTask {
      * @throws Exception
      */
     public void submitSync(Task task, int submitModel, int timeout, Listener listener) throws Exception {
-        ClientService.getConfig().getClusterPool().submit(new Runnable() {
+        ClientService.getConfig().getAdvanceConfig().getClusterPool().submit(new Runnable() {
             @Override
             public void run() {
                 try {

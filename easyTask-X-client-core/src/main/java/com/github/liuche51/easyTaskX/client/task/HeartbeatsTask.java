@@ -37,7 +37,7 @@ public class HeartbeatsTask extends TimerTask {
                 LogUtil.error("", e);
             }
             try {
-                Thread.sleep(ClientService.getConfig().getHeartBeat());
+                Thread.sleep(ClientService.getConfig().getAdvanceConfig().getHeartBeat());
             } catch (InterruptedException e) {
                 LogUtil.error("", e);
             }

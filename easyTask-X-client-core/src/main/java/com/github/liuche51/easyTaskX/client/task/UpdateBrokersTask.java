@@ -39,7 +39,7 @@ public class UpdateBrokersTask extends TimerTask {
                 LogUtil.error("", e);
             }
             try {
-                Thread.sleep(ClientService.getConfig().getUpdateBrokersTime());
+                Thread.sleep(ClientService.getConfig().getAdvanceConfig().getUpdateBrokersTime());
             } catch (InterruptedException e) {
                 LogUtil.error("", e);
             }

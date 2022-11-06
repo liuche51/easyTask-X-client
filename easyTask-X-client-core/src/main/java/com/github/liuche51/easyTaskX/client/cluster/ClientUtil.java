@@ -29,7 +29,7 @@ public class ClientUtil {
                 builder.setIdentity(Util.generateIdentityId()).setInterfaceName(NettyInterfaceEnum.FollowNotifyLeaderHasRestart)
                         .setSource(StringConstant.BROKER);
                 ByteStringPack pack = new ByteStringPack();
-                boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, leader.getClient(), ClientService.getConfig().getTryCount(), 5, pack);
+                boolean ret = NettyMsgService.sendSyncMsgWithCount(builder, leader.getClient(), ClientService.getConfig().getAdvanceConfig().getTryCount(), 5, pack);
                 if (!ret) {
                     LogUtil.error("Client因重启询问leader是否自己还处于存活状态。失败！");
                 } else {

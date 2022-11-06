@@ -60,7 +60,7 @@ public class BrokerService {
     private static void addWAIT_SEND_TASK(SubmitTaskRequest submitTaskRequest, TaskFuture future) throws Exception {
         LinkedBlockingQueue<SubmitTaskRequest> queue = WAIT_SEND_TASK.get(submitTaskRequest.getSubmitBroker());
         if (queue == null) {// 防止数据不一致导致未能正确添加Broker的队列
-            WAIT_SEND_TASK.put(submitTaskRequest.getSubmitBroker(), new LinkedBlockingQueue<SubmitTaskRequest>(ClientService.getConfig().getWaitSendTaskCount()));
+            WAIT_SEND_TASK.put(submitTaskRequest.getSubmitBroker(), new LinkedBlockingQueue<SubmitTaskRequest>(ClientService.getConfig().getAdvanceConfig().getWaitSendTaskCount()));
             queue = WAIT_SEND_TASK.get(submitTaskRequest.getSubmitBroker());
         }
         boolean offer = queue.offer(submitTaskRequest, submitTaskRequest.getTimeOut(), TimeUnit.SECONDS);//插入元素，如果队列满阻塞，超时后返回false，否则返回true

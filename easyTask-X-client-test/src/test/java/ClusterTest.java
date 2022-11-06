@@ -68,9 +68,9 @@ public class ClusterTest {
         config.setZkAddress("127.0.0.1:2181");
         //config.setDeleteZKTimeOunt(500);
         //config.setSelectLeaderZKNodeTimeOunt(500);
-        config.setDispatchs(new ThreadPoolExecutor(6, 6, 10000, java.util.concurrent.TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>()));
-        config.setWorkers(new ThreadPoolExecutor(12, 12, 10000, java.util.concurrent.TimeUnit.MILLISECONDS,
+      /*  config.getAdvanceConfig().setDispatchs(new ThreadPoolExecutor(6, 6, 10000, java.util.concurrent.TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>()));*/
+        config.getAdvanceConfig().setWorkers(new ThreadPoolExecutor(12, 12, 10000, java.util.concurrent.TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>()));
         ClientService.start(config);
         CusTask1 task1 = new CusTask1();

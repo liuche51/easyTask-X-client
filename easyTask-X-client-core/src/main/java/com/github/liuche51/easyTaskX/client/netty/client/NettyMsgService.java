@@ -28,7 +28,7 @@ public class NettyMsgService {
         ChannelPromise promise = conn.getClientChannel().newPromise();
         conn.getHandler().setPromise(promise);
         conn.getClientChannel().writeAndFlush(msg);
-        promise.await(ClientService.getConfig().getTimeOut(), TimeUnit.SECONDS);//等待固定的时间，超时就认为失败，需要重发
+        promise.await(ClientService.getConfig().getAdvanceConfig().getTimeOut(), TimeUnit.SECONDS);//等待固定的时间，超时就认为失败，需要重发
         try {
             Dto.Frame frame = (Dto.Frame) conn.getHandler().getResponse();
             return frame;
