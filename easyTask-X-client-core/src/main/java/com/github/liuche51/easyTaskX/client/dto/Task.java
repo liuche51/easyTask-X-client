@@ -4,6 +4,7 @@ import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.core.TimeUnit;
 import com.github.liuche51.easyTaskX.client.enume.ImmediatelyType;
 
+import java.time.ZonedDateTime;
 import java.util.Map;
 
 /**
@@ -19,6 +20,8 @@ public class Task {
     private TimeUnit unit;
     private ImmediatelyType immediatelyType = ImmediatelyType.NONE;//立即执行类型
     private Map<String, String> param;
+    private ZonedDateTime startTime;
+    private ZonedDateTime endTime;
     public long getExecuteTime() {
         return executeTime;
     }
@@ -69,4 +72,19 @@ public class Task {
         this.param = param;
     }
 
+    public ZonedDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(ZonedDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public ZonedDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(ZonedDateTime endTime) {
+        this.endTime = endTime;
+    }
 }

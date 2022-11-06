@@ -6,6 +6,7 @@ import com.github.liuche51.easyTaskX.client.core.TaskType;
 import com.github.liuche51.easyTaskX.client.core.TimeUnit;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 import com.github.liuche51.easyTaskX.client.enume.ImmediatelyType;
+import com.github.liuche51.easyTaskX.client.util.DateUtils;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -28,7 +29,8 @@ public class InnerTask {
     private String source;
     private String broker;//任务所属
     private Map<String, String> param;
-
+    private ZonedDateTime startTime;
+    private ZonedDateTime endTime;
     public long getExecuteTime() {
         return executeTime;
     }
@@ -117,6 +119,22 @@ public class InnerTask {
         this.broker = broker;
     }
 
+    public ZonedDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(ZonedDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public ZonedDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(ZonedDateTime endTime) {
+        this.endTime = endTime;
+    }
+
     /**
      * 获取周期性任务下次执行时间。已当前时间为基准计算下次而不是上次截止执行时间
      *
@@ -165,7 +183,7 @@ public class InnerTask {
         builder.setId(this.getId()).setClassPath(this.getTaskClassPath()).setExecuteTime(this.getExecuteTime())
                 .setTaskType(this.getTaskType().name()).setImmediatelyType(this.getImmediatelyType().name()).setPeriod(this.period).setUnit(this.getUnit().name())
                 .setParam(JSONObject.toJSONString(this.getParam())).setSource(ClientService.getConfig().getAddress())
-                .setExecuter(this.getBroker()).setSubmitModel(submitModel);
+                .setSubmitModel(submitModel).setStartTime(DateUtils.getTimeStamp(this.startTime)).setEndTime(DateUtils.getTimeStamp(this.endTime));
         return builder.build();
     }
 
@@ -185,6 +203,8 @@ public class InnerTask {
         task.setImmediatelyType(ImmediatelyType.getByValue(schedule.getImmediatelyType()));
         task.setUnit(TimeUnit.getByValue(schedule.getUnit()));
         task.setTaskClassPath(schedule.getClassPath());
+        task.setStartTime(DateUtils.parse(schedule.getStartTime()));
+        task.setEndTime(DateUtils.parse(schedule.getEndTime()));
         //task.setGroup();
         return task;
     }
@@ -197,6 +217,8 @@ public class InnerTask {
         innerTask.setUnit(task.getUnit());
         innerTask.setImmediatelyType(task.getImmediatelyType());
         innerTask.setParam(task.getParam());
+        innerTask.setStartTime(task.getStartTime());
+        innerTask.setEndTime(task.getEndTime());
         return innerTask;
     }
 }

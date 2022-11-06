@@ -104,7 +104,8 @@ public class Util {
         builder.setId(Util.generateUniqueId()).setClassPath(task.getClass().getName()).setExecuteTime(task.getExecuteTime())
                 .setTaskType(task.getTaskType().name()).setPeriod(task.getPeriod()).setUnit(task.getUnit().name())
                 .setParam(JSONObject.toJSONString(task.getParam())).setSource(ClientService.getConfig().getAddress())
-                .setExecuter(broker).setSubmitModel(submitModel);
+                .setStartTime(DateUtils.getTimeStamp(task.getStartTime())).setEndTime(DateUtils.getTimeStamp(task.getEndTime()))
+                .setSubmitModel(submitModel);
         return builder.build();
     }
 }
