@@ -22,14 +22,14 @@ public class ProxyFactory {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                         String id = target.getId();
-                        LogUtil.debug("任务:{} 代理执行开始", id);
+                        LogUtil.trace(id,"任务代理执行开始");
                         try {
                             return method.invoke(target, args);
                         } catch (Exception e) {
                             LogUtil.error("target proxy method execute exception！task.id=" + id, e);
                             throw e;
                         } finally {
-                            LogUtil.debug("任务:{} 代理执行结束", id);
+                            LogUtil.trace(id,"任务代理执行结束");
                         }
                     }
                 }

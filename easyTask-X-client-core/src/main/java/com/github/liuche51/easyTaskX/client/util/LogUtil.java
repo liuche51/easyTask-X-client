@@ -59,6 +59,12 @@ public class LogUtil {
      */
     public static void trace(String taskId, String s, Object... o) {
         if (ClientService.getConfig().getAdvanceConfig().isDebug()) {
+            String nodeAddress="";
+            try {
+                nodeAddress=ClientService.getConfig().getAddress();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             if (null == ClientService.getConfig().getAdvanceConfig().getTaskTraceStoreModel())
                 log.info("TaskId=" + taskId + ":" + s, o);
             else if("memory".equalsIgnoreCase(ClientService.getConfig().getAdvanceConfig().getTaskTraceStoreModel())){
@@ -68,11 +74,11 @@ public class LogUtil {
                     TASK_TRACE_LOGS.put(taskId,logs);
                 }
                 FormattingTuple ft = MessageFormatter.arrayFormat(s, o);
-                logs.add(ft.getMessage());
+                logs.add("happened at "+nodeAddress+" "+ft.getMessage());
             }else if("ext".equalsIgnoreCase(ClientService.getConfig().getAdvanceConfig().getTaskTraceStoreModel())){
                 TaskTraceExt taskTraceExt = ClientService.getConfig().getAdvanceConfig().getTaskTraceExt();
                 if(taskTraceExt!=null){
-                    taskTraceExt.trace(taskId,s,o);
+                    taskTraceExt.trace(taskId,nodeAddress,s,o);
                 }else{
                     try {
                         throw new EasyTaskException(ExceptionCode.TaskTraceExt_NotFind,"config item taskTraceExt not find.");

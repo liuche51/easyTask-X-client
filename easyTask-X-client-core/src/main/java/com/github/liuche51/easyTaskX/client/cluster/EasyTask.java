@@ -71,7 +71,9 @@ public class EasyTask {
     }
 
     private String submit(Task task, int submitModel, int timeout, TaskFuture future) throws Exception {
-        if (!ClientService.IS_STARTED) throw new Exception("the easyTask-X has not started,please wait a moment!");
+        if (!ClientService.IS_STARTED) {
+            throw new Exception("the easyTask-X has not started,please wait a moment!");
+        }
         if (submitModel < 0 || submitModel > 2) throw new Exception("submitModel can set be (0,1,2)!");
         if (timeout <= 0) throw new Exception("timeout mustbe >0!");
         InnerTask innerTask = InnerTask.parseFromTask(task);

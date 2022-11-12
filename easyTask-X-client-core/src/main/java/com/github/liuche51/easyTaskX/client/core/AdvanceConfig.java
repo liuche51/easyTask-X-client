@@ -158,7 +158,11 @@ public class AdvanceConfig {
         return taskTraceExt;
     }
 
-    public void setTaskTraceExt(TaskTraceExt taskTraceExt) {
+    /**
+     * 注册任务跟踪日志扩展实现
+     * @param taskTraceExt
+     */
+    public void registerTaskTraceExt(TaskTraceExt taskTraceExt) {
         this.taskTraceExt = taskTraceExt;
     }
 
