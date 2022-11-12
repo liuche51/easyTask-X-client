@@ -6,7 +6,7 @@ import com.github.liuche51.easyTaskX.client.dto.SubmitTaskRequest;
 import com.github.liuche51.easyTaskX.client.dto.SubmitTaskResult;
 import com.github.liuche51.easyTaskX.client.dto.proto.ScheduleDto;
 import com.github.liuche51.easyTaskX.client.enume.SubmitTaskResultStatusEnum;
-import com.github.liuche51.easyTaskX.client.util.LogUtil;
+import com.github.liuche51.easyTaskX.client.util.TraceLogUtil;
 
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +50,7 @@ public class BrokerService {
         task.setBroker(selectedNode.getAddress());//将任务所属服务端节点标记一下
         ScheduleDto.Schedule schedule = task.toScheduleDto(submitModel);
         addWAIT_SEND_TASK(new SubmitTaskRequest(schedule, selectedNode.getAddress(), timeout), future);
-        LogUtil.trace(schedule.getId(),"任务已提交本地发送队列，等待发送到服务端");
+        TraceLogUtil.trace(schedule.getId(),"任务已提交本地发送队列，等待发送到服务端");
     }
 
     /**

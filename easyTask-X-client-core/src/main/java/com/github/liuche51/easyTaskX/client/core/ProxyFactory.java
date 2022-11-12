@@ -2,6 +2,7 @@ package com.github.liuche51.easyTaskX.client.core;
 
 import com.github.liuche51.easyTaskX.client.dto.InnerTask;
 import com.github.liuche51.easyTaskX.client.util.LogUtil;
+import com.github.liuche51.easyTaskX.client.util.TraceLogUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -22,14 +23,14 @@ public class ProxyFactory {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                         String id = target.getId();
-                        LogUtil.trace(id,"任务代理执行开始");
+                        TraceLogUtil.trace(id,"任务代理执行开始");
                         try {
                             return method.invoke(target, args);
                         } catch (Exception e) {
                             LogUtil.error("target proxy method execute exception！task.id=" + id, e);
                             throw e;
                         } finally {
-                            LogUtil.trace(id,"任务代理执行结束");
+                            TraceLogUtil.trace(id,"任务代理执行结束");
                         }
                     }
                 }

@@ -54,6 +54,10 @@ public class AdvanceConfig {
      */
     private int updateBrokersTime = 60 * 60;
 
+    /**
+     * 任务跟踪日志扩展实现类。
+     * 1、用户需要将组件产生的日志接入外部统一数据中心时使用
+     */
     private TaskTraceExt taskTraceExt;
     /**
      * 集群公用程池
