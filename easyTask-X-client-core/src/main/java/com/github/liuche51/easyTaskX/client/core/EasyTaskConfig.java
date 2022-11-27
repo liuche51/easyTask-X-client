@@ -1,5 +1,6 @@
 package com.github.liuche51.easyTaskX.client.core;
 
+import com.github.liuche51.easyTaskX.client.enume.TaskTraceStoreModel;
 import com.github.liuche51.easyTaskX.client.util.StringUtils;
 import com.github.liuche51.easyTaskX.client.util.Util;
 
@@ -70,6 +71,8 @@ public class EasyTaskConfig {
     public static void validateNecessary(EasyTaskConfig config) throws Exception {
         if (StringUtils.isNullOrEmpty(config.zkAddress))
             throw new Exception("zkAddress is necessary!");
+        if(TaskTraceStoreModel.EXT.equalsIgnoreCase(config.getAdvanceConfig().getTaskTraceStoreModel())&&StringUtils.isNullOrEmpty(config.getAdvanceConfig().getTaskTraceExtUrl()))
+            throw new Exception("taskTraceExtUrl is necessary!");
         if (config.getAdvanceConfig().getWorkers() == null)
             config.getAdvanceConfig().setWorkers(Executors.newCachedThreadPool());
         if (config.getAdvanceConfig().getClusterPool() == null)

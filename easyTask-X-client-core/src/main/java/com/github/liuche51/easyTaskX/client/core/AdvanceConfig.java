@@ -1,7 +1,5 @@
 package com.github.liuche51.easyTaskX.client.core;
 
-import com.github.liuche51.easyTaskX.client.ext.TaskTraceExt;
-
 import java.util.concurrent.ExecutorService;
 
 public class AdvanceConfig {
@@ -40,6 +38,14 @@ public class AdvanceConfig {
      */
     private String taskTraceStoreModel = null;
     /**
+     * 任务跟踪日志外部扩展接受日志的URL
+     */
+    private String taskTraceExtUrl;
+    /**
+     * 任务跟踪日志队列写库频率。毫秒
+     */
+    private int traceLogWriteIntervalTimes = 1000;
+    /**
      * 是否需要支持任务执行幂等性
      * 1、true，则框架提供支持任务最多执行一次保障。会有性能消耗
      * 2、false，任务执行可能会多次触发，需要用户自行解决
@@ -53,12 +59,6 @@ public class AdvanceConfig {
      * 从leader更新Brokers列表间隔时间。单位秒。
      */
     private int updateBrokersTime = 60 * 60;
-
-    /**
-     * 任务跟踪日志扩展实现类。
-     * 1、用户需要将组件产生的日志接入外部统一数据中心时使用
-     */
-    private TaskTraceExt taskTraceExt;
     /**
      * 集群公用程池
      */
@@ -150,24 +150,28 @@ public class AdvanceConfig {
         this.taskTraceStoreModel = taskTraceStoreModel;
     }
 
+    public String getTaskTraceExtUrl() {
+        return taskTraceExtUrl;
+    }
+
+    public void setTaskTraceExtUrl(String taskTraceExtUrl) {
+        this.taskTraceExtUrl = taskTraceExtUrl;
+    }
+
+    public int getTraceLogWriteIntervalTimes() {
+        return traceLogWriteIntervalTimes;
+    }
+
+    public void setTraceLogWriteIntervalTimes(int traceLogWriteIntervalTimes) {
+        this.traceLogWriteIntervalTimes = traceLogWriteIntervalTimes;
+    }
+
     public boolean isTaskIdempotence() {
         return taskIdempotence;
     }
 
     public void setTaskIdempotence(boolean taskIdempotence) {
         this.taskIdempotence = taskIdempotence;
-    }
-
-    public TaskTraceExt getTaskTraceExt() {
-        return taskTraceExt;
-    }
-
-    /**
-     * 注册任务跟踪日志扩展实现
-     * @param taskTraceExt
-     */
-    public void registerTaskTraceExt(TaskTraceExt taskTraceExt) {
-        this.taskTraceExt = taskTraceExt;
     }
 
     public ExecutorService getClusterPool() {

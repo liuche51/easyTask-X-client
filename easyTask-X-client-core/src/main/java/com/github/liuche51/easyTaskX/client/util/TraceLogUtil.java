@@ -1,27 +1,29 @@
 package com.github.liuche51.easyTaskX.client.util;
 
 import com.github.liuche51.easyTaskX.client.cluster.ClientService;
-import com.github.liuche51.easyTaskX.client.exception.EasyTaskException;
-import com.github.liuche51.easyTaskX.client.exception.ExceptionCode;
-import com.github.liuche51.easyTaskX.client.ext.TaskTraceExt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.liuche51.easyTaskX.client.dto.TraceLog;
+import com.github.liuche51.easyTaskX.client.enume.TaskTraceStoreModel;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 任务跟踪日志专用工具类
  */
 public class TraceLogUtil {
-    protected static final Logger log = LoggerFactory.getLogger(TraceLogUtil.class);
     /**
      * 本地任务跟踪日志
      */
     public static ConcurrentHashMap<String, List<String>> TASK_TRACE_LOGS=new ConcurrentHashMap<>();
+    /**
+     * 等待写本地库或外部HTTP调用的跟踪日志
+     */
+    public static LinkedBlockingQueue<TraceLog> TASK_TRACE_WAITTO_WRITE = new LinkedBlockingQueue<>(ClientService.getConfig().getAdvanceConfig().getWaitSendTaskCount());
+
 
     /**
      * 任务跟踪日志专用
@@ -37,30 +39,24 @@ public class TraceLogUtil {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (null == ClientService.getConfig().getAdvanceConfig().getTaskTraceStoreModel())
-                log.info("TaskId=" + taskId + ":" + s, o);
-            else if("memory".equalsIgnoreCase(ClientService.getConfig().getAdvanceConfig().getTaskTraceStoreModel())){
+            String taskTraceStoreModel = ClientService.getConfig().getAdvanceConfig().getTaskTraceStoreModel();
+            if (null == taskTraceStoreModel)
+                LogUtil.info("TaskId=" + taskId + ":" + s, o);
+            else if (TaskTraceStoreModel.MEMORY.equalsIgnoreCase(taskTraceStoreModel)) {
                 List<String> logs = TASK_TRACE_LOGS.get(taskId);
-                if(logs==null){
-                    logs=new LinkedList<>();
-                    TASK_TRACE_LOGS.put(taskId,logs);
+                if (logs == null) {
+                    logs = new LinkedList<>();
+                    TASK_TRACE_LOGS.put(taskId, logs);
                 }
                 FormattingTuple ft = MessageFormatter.arrayFormat(s, o);
-                logs.add("happened at "+nodeAddress+" "+ft.getMessage());
-            }else if("ext".equalsIgnoreCase(ClientService.getConfig().getAdvanceConfig().getTaskTraceStoreModel())){
-                TaskTraceExt taskTraceExt = ClientService.getConfig().getAdvanceConfig().getTaskTraceExt();
-                if(taskTraceExt!=null){
-                    taskTraceExt.trace(taskId,nodeAddress,s,o);
-                }else{
-                    try {
-                        throw new EasyTaskException(ExceptionCode.TaskTraceExt_NotFind,"config item taskTraceExt not find.");
-                    } catch (EasyTaskException e) {
-                        log.error(e.getMessage());
-                    }
+                logs.add("happened at " + nodeAddress + " " + ft.getMessage());
+            } else if (TaskTraceStoreModel.LOCAL.equalsIgnoreCase(taskTraceStoreModel) || TaskTraceStoreModel.EXT.equalsIgnoreCase(taskTraceStoreModel)) {
+                FormattingTuple ft = MessageFormatter.arrayFormat(s, o);
+                TraceLog traceLog = new TraceLog(taskId, nodeAddress + " " + ft.getMessage());
+                // 如果日志缓冲队列已满，则丢弃，不阻塞主线程。写入重要系统错误
+                if (!TASK_TRACE_WAITTO_WRITE.offer(traceLog)) {
+                    LogUtil.info("队列 TASK_TRACE_WAITTO_WRITE is full.", "com.github.liuche51.easyTaskX.util.LogUtil.trace");
                 }
-
-            }else if("local".equalsIgnoreCase(ClientService.getConfig().getAdvanceConfig().getTaskTraceStoreModel())){
-                // Todo 暂时不支持客户端本地存储日志，需要发送到服务端存储
             }
         }
     }
